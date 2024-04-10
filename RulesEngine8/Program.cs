@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RuleEngine.Models;
+using RuleEngine8.Models;
 using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);

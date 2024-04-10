@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RuleEngine.Models;
+using RulesEngine8.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace RuleEngine.Controllers
 {
@@ -37,7 +38,14 @@ namespace RuleEngine.Controllers
             return configItem;
         }
 
-        // POST api/<ValuesController>
+        // POST api/<ConfigController>
+        [HttpPost("district/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
+        public IActionResult Post([FromQuery, Required] string hostname, string district, string assetType,string assetKey,string sensorKey, string sensorType, [FromBody] Sensor sensor)
+        {
+            // return params in the response
+            return Ok(new {Hostname = hostname, District = district, AssetType = assetType, AssetKey = assetKey, SensorKey = sensorKey, SensorType = sensorType, RequestBody = sensor});
+        }
+
         [HttpPost]
         public async Task<ActionResult<ConfigItem>> PostConfigItem(ConfigItem configItem)
         {
@@ -47,7 +55,7 @@ namespace RuleEngine.Controllers
             return CreatedAtAction(nameof(GetConfigItem), new { id = configItem.Id }, configItem);
         }
 
-        // PUT api/<ValuesController>/5
+        // PUT api/<ConfigController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult<ConfigItem>> PutConfigItem(int id, ConfigItem configItem)
         {

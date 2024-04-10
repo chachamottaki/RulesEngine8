@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using RuleEngine8.Models;
 using Microsoft.Extensions.Configuration;
+using RulesEngine8.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

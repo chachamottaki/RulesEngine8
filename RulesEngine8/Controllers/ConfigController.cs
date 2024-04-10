@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RulesEngine8.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace RuleEngine.Controllers
+namespace RuleEngine8.Controllers
 {
     [Route("api/Config")]
     [ApiController]

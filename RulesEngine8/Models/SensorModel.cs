@@ -1,6 +1,6 @@
 ﻿namespace RulesEngine8.Models
 {
-    public class Sensor
+    public class SensorModel
     {
         public bool status { get; set; }
         public DateTime timestamp { get; set; }

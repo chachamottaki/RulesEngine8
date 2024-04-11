@@ -1,6 +1,6 @@
 ﻿namespace RulesEngine8.Models
 {
-    public class ConfigItem
+    public class ConfigItemModel
     {
         public int Id { get; set; }
         public string UUID { get; set; }

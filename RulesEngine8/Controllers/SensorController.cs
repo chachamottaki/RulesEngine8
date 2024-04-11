@@ -7,17 +7,17 @@ namespace RuleEngine8.Controllers
 {
     [Route("")]
     [ApiController]
-    public class ConfigController : ControllerBase
+    public class SensorController : ControllerBase
     {
         private readonly RulesEngineDBContext _context;
-        public ConfigController(RulesEngineDBContext context)
+        public SensorController(RulesEngineDBContext context)
         {
             _context = context;
         }
 
         // GET: api/<ValuesController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ConfigItem>>> GetConfigItems()
+        public async Task<ActionResult<IEnumerable<ConfigItemModel>>> GetConfigItems()
         {
             if (_context.ConfigItems == null)
             {
@@ -28,7 +28,7 @@ namespace RuleEngine8.Controllers
 
         // GET api/<ValuesController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ConfigItem>> GetConfigItem(int id)
+        public async Task<ActionResult<ConfigItemModel>> GetConfigItem(int id)
         {
             var configItem = await _context.ConfigItems.FindAsync(id);
             if (configItem == null)
@@ -40,14 +40,14 @@ namespace RuleEngine8.Controllers
 
         // POST api/<ConfigController>
         [HttpPost("districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
-        public IActionResult Post([FromQuery, Required] string hostname, string district, string assetType,string assetKey,string sensorKey, string sensorType, [FromBody] Sensor sensor)
+        public IActionResult Post([FromQuery, Required] string hostname, string district, string assetType,string assetKey,string sensorKey, string sensorType, [FromBody] SensorModel sensor)
         {
             // return params in the response
             return Ok(new {Hostname = hostname, District = district, AssetType = assetType, AssetKey = assetKey, SensorKey = sensorKey, SensorType = sensorType, RequestBody = sensor});
         }
 
         [HttpPost]
-        public async Task<ActionResult<ConfigItem>> PostConfigItem(ConfigItem configItem)
+        public async Task<ActionResult<ConfigItemModel>> PostConfigItem(ConfigItemModel configItem)
         {
             _context.ConfigItems.Add(configItem);
             await _context.SaveChangesAsync();
@@ -57,7 +57,7 @@ namespace RuleEngine8.Controllers
 
         // PUT api/<ConfigController>/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<ConfigItem>> PutConfigItem(int id, ConfigItem configItem)
+        public async Task<ActionResult<ConfigItemModel>> PutConfigItem(int id, ConfigItemModel configItem)
         {
             if (id != configItem.Id)
             {
@@ -90,7 +90,7 @@ namespace RuleEngine8.Controllers
 
         // DELETE api/<ValuesController>/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ConfigItem>> DeleteConfigItem(int id)
+        public async Task<ActionResult<ConfigItemModel>> DeleteConfigItem(int id)
         {
             if (_context.ConfigItems == null)
             {

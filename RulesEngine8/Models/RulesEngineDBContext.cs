@@ -6,8 +6,8 @@ namespace RulesEngine8.Models
     public class RulesEngineDBContext : DbContext
     {
         public RulesEngineDBContext(DbContextOptions<RulesEngineDBContext> options) : base(options) { }
-        public DbSet<ConfigItem> ConfigItems { get; set; }
-        public DbSet<Sensor> Sensors { get; set; }
+        public DbSet<ConfigItemModel> ConfigItems { get; set; }
+        public DbSet<SensorModel> Sensors { get; set; }
     }
 
 }

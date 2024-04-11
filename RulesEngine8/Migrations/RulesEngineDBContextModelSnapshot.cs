@@ -34,10 +34,6 @@ namespace RulesEngine8.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Config")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("DeviceID")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -86,6 +82,34 @@ namespace RulesEngine8.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Sensors");
+                });
+
+            modelBuilder.Entity("RulesEngine8.Models.ConfigItemModel", b =>
+                {
+                    b.OwnsOne("RulesEngine8.Models.ConfigJson", "Config", b1 =>
+                        {
+                            b1.Property<int>("ConfigItemModelId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Email")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<bool>("sendEmail")
+                                .HasColumnType("bit");
+
+                            b1.HasKey("ConfigItemModelId");
+
+                            b1.ToTable("ConfigItems");
+
+                            b1.ToJson("Config");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ConfigItemModelId");
+                        });
+
+                    b.Navigation("Config")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

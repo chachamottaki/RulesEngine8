@@ -12,8 +12,8 @@ using RulesEngine8.Models;
 namespace RulesEngine8.Migrations
 {
     [DbContext(typeof(RulesEngineDBContext))]
-    [Migration("20240411080226_Add_Sensor_Table")]
-    partial class Add_Sensor_Table
+    [Migration("20240411125737_First_migration")]
+    partial class First_migration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,10 +34,6 @@ namespace RulesEngine8.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AssetID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Config")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -89,6 +85,34 @@ namespace RulesEngine8.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Sensors");
+                });
+
+            modelBuilder.Entity("RulesEngine8.Models.ConfigItemModel", b =>
+                {
+                    b.OwnsOne("RulesEngine8.Models.ConfigJson", "Config", b1 =>
+                        {
+                            b1.Property<int>("ConfigItemModelId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Email")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<bool>("sendEmail")
+                                .HasColumnType("bit");
+
+                            b1.HasKey("ConfigItemModelId");
+
+                            b1.ToTable("ConfigItems");
+
+                            b1.ToJson("Config");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ConfigItemModelId");
+                        });
+
+                    b.Navigation("Config")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

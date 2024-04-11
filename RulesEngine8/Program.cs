@@ -5,7 +5,7 @@ using RulesEngine8.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<ConfigDBContext>(options =>
+builder.Services.AddDbContext<RulesEngineDBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("ConfigDBConnection")));
 
 builder.Services.AddControllers();

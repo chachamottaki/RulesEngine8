@@ -5,12 +5,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RuleEngine8.Controllers
 {
-    [Route("api/Config")]
+    [Route("")]
     [ApiController]
     public class ConfigController : ControllerBase
     {
-        private readonly ConfigDBContext _context;
-        public ConfigController(ConfigDBContext context)
+        private readonly RulesEngineDBContext _context;
+        public ConfigController(RulesEngineDBContext context)
         {
             _context = context;
         }
@@ -39,7 +39,7 @@ namespace RuleEngine8.Controllers
         }
 
         // POST api/<ConfigController>
-        [HttpPost("district/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
+        [HttpPost("districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
         public IActionResult Post([FromQuery, Required] string hostname, string district, string assetType,string assetKey,string sensorKey, string sensorType, [FromBody] Sensor sensor)
         {
             // return params in the response

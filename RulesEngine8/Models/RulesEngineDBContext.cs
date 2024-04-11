@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RulesEngine8.Models
 {
-    public class ConfigDBContext : DbContext
+    public class RulesEngineDBContext : DbContext
     {
-        public ConfigDBContext(DbContextOptions<ConfigDBContext> options) : base(options) { }
+        public RulesEngineDBContext(DbContextOptions<RulesEngineDBContext> options) : base(options) { }
         public DbSet<ConfigItem> ConfigItems { get; set; }
         public DbSet<Sensor> Sensors { get; set; }
     }

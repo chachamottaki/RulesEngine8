@@ -42,6 +42,7 @@ namespace RuleEngine8.Controllers
         [HttpPost("districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
         public IActionResult Post([FromQuery, Required] string hostname, string district, string assetType,string assetKey,string sensorKey, string sensorType, [FromBody] SensorModel sensor)
         {
+
             // return params in the response
             return Ok(new {Hostname = hostname, District = district, AssetType = assetType, AssetKey = assetKey, SensorKey = sensorKey, SensorType = sensorType, RequestBody = sensor});
         }

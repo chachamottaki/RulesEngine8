@@ -41,12 +41,6 @@ namespace RuleEngine8.Controllers
         [HttpPost]
         public async Task<ActionResult<ConfigItemModel>> PostConfigItem(ConfigItemModel configItem)
         {
-            // Create a new ConfigItem and set the JsonData property
-            //var config = new ConfigItemModel
-            //{
-              //  Config = configItem.Config
-            //};
-
             // Add the configItem to the database and save changes
             _context.ConfigItems.Add(configItem);
             await _context.SaveChangesAsync();

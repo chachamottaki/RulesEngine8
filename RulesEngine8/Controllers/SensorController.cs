@@ -1,111 +1,55 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RulesEngine8.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace RuleEngine8.Controllers
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace RulesEngine8.Controllers
 {
-    [Route("")]
+    [Route("api/[controller]")]
     [ApiController]
     public class SensorController : ControllerBase
     {
-        private readonly RulesEngineDBContext _context;
-        public SensorController(RulesEngineDBContext context)
-        {
-            _context = context;
-        }
-
-        // GET: api/<ValuesController>
+        // GET: api/<SensorController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ConfigItemModel>>> GetConfigItems()
+        public IEnumerable<string> Get()
         {
-            if (_context.ConfigItems == null)
-            {
-                return NotFound();
-            }
-            return await _context.ConfigItems.ToListAsync();
+            return new string[] { "value1", "value2" };
         }
 
-        // GET api/<ValuesController>/5
+        // GET api/<SensorController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ConfigItemModel>> GetConfigItem(int id)
+        public string Get(int id)
         {
-            var configItem = await _context.ConfigItems.FindAsync(id);
-            if (configItem == null)
-            {
-                return NotFound();
-            }
-            return configItem;
+            return "value";
+        }
+
+        // POST api/<SensorController>
+        [HttpPost]
+        public void Post([FromBody] string value)
+        {
         }
 
         // POST api/<ConfigController>
         [HttpPost("districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
-        public IActionResult Post([FromQuery, Required] string hostname, string district, string assetType,string assetKey,string sensorKey, string sensorType, [FromBody] SensorModel sensor)
+        public IActionResult Post([FromQuery, Required] string hostname, string district, string assetType, string assetKey, string sensorKey, string sensorType, [FromBody] SensorModel sensor)
         {
+            // compare with DB values
 
             // return params in the response
-            return Ok(new {Hostname = hostname, District = district, AssetType = assetType, AssetKey = assetKey, SensorKey = sensorKey, SensorType = sensorType, RequestBody = sensor});
+            return Ok(new { Hostname = hostname, District = district, AssetType = assetType, AssetKey = assetKey, SensorKey = sensorKey, SensorType = sensorType, RequestBody = sensor });
         }
 
-        [HttpPost]
-        public async Task<ActionResult<ConfigItemModel>> PostConfigItem(ConfigItemModel configItem)
-        {
-            _context.ConfigItems.Add(configItem);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetConfigItem), new { id = configItem.Id }, configItem);
-        }
-
-        // PUT api/<ConfigController>/5
+        // PUT api/<SensorController>/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<ConfigItemModel>> PutConfigItem(int id, ConfigItemModel configItem)
+        public void Put(int id, [FromBody] string value)
         {
-            if (id != configItem.Id)
-            {
-                return BadRequest();
-            }
-            _context.Entry(configItem).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ConfigItemAvailable(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return Ok();
         }
 
-        private bool ConfigItemAvailable(int id)
-        {
-            return (_context.ConfigItems?.Any(x => x.Id == id)).GetValueOrDefault();
-        }
-
-        // DELETE api/<ValuesController>/5
+        // DELETE api/<SensorController>/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ConfigItemModel>> DeleteConfigItem(int id)
+        public void Delete(int id)
         {
-            if (_context.ConfigItems == null)
-            {
-                return NotFound();
-            }
-
-            var configitem = await _context.ConfigItems.FindAsync(id);
-            if (configitem == null)
-            {
-                return NotFound();
-            }
-            _context.ConfigItems.Remove(configitem);
-            await _context.SaveChangesAsync();
-            return Ok();
         }
     }
 }

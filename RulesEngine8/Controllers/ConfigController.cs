@@ -47,23 +47,6 @@ namespace RuleEngine8.Controllers
             _context.ConfigItems.Add(configItem);
             await _context.SaveChangesAsync();
 
-            // Retrieve the row from the database where Id = 1
-            var rowWithId1 = _context.ConfigItems.FirstOrDefault(x => x.Id == 7);
-            if (rowWithId1 != null)
-            {
-                // Parse the JSON stored in the Config column
-                var configJson = rowWithId1.Config;
-
-                // Extract the value of "sendEmail" from the JSON
-                bool sendEmailValue = (bool)configJson.sendEmail;
-
-                // testing db read, json data retreival"
-                if (sendEmailValue)
-                {
-                    return Ok(new { hi= "hi", Emailaddress = configJson.email });
-                }
-            }
-
             return CreatedAtAction(nameof(GetConfigItem), new { id = configItem.Id }, configItem);
         }
 

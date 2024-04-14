@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RulesEngine8.Models;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,6 +11,11 @@ namespace RulesEngine8.Controllers
     [ApiController]
     public class SensorController : ControllerBase
     {
+        private readonly RulesEngineDBContext _context;
+        public SensorController(RulesEngineDBContext context)
+        {
+            _context = context;
+        }
         // GET: api/<SensorController>
         [HttpGet]
         public IEnumerable<string> Get()
@@ -35,7 +41,22 @@ namespace RulesEngine8.Controllers
         public IActionResult Post([FromQuery, Required] string hostname, string district, string assetType, string assetKey, string sensorKey, string sensorType, [FromBody] SensorModel sensor)
         {
             // compare with DB values
+            // Retrieve the row from the database where Id = 1
+            var configItem = _context.ConfigItems.FirstOrDefault(x => x.AssetID == assetKey);
+            if (configItem != null)
+            {
+                // Parse the JSON stored in the Config column
+                var configJson = configItem.Config;
 
+                // Extract the value of "sendEmail" from the JSON
+                bool sendEmailValue = (bool)configJson.sendEmail;
+
+                // testing db read, json data retreival"
+                if (sendEmailValue)
+                {
+                    return Ok(new { hi = "Email will be sent!", Emailaddress = configJson.email });
+                }
+            }
             // return params in the response
             return Ok(new { Hostname = hostname, District = district, AssetType = assetType, AssetKey = assetKey, SensorKey = sensorKey, SensorType = sensorType, RequestBody = sensor });
         }

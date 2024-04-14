@@ -3,6 +3,6 @@
     public class ConfigJson
     {
         public bool sendEmail { get; set; }
-        public string Email { get; set; }
+        public string? email { get; set; }
     }
 }

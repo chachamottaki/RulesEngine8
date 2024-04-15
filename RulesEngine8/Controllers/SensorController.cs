@@ -57,16 +57,19 @@ namespace RulesEngine8.Controllers
             if (configItem != null)
             {
                 var configJson = configItem.Config;
+                string UUID = configItem.UUID;
                 bool sendEmailValue = (bool)configJson.sendEmail;
+                string recipient = configJson.email;
 
                 if (sendEmailValue)
                 {
                     var historyRecord = new HistoryTable
                     {
+                        assetUUID = UUID,
                         emailSent = sendEmailValue,
+                        emailRecipient = recipient,
                         emailContent = "Hi! Alarm Triggered!",
-                        timestamp = DateTime.Now,
-                        timestampLocal = DateTime.Now
+                        timestamp = DateTime.Now
                     };
                     _context.HistoryTables.Add(historyRecord);
                     await _context.SaveChangesAsync();
@@ -77,10 +80,11 @@ namespace RulesEngine8.Controllers
                 {
                     var historyRecord = new HistoryTable
                     {
+                        assetUUID = UUID,
                         emailSent = sendEmailValue,
+                        emailRecipient = recipient,
                         emailContent = null,
-                        timestamp = DateTime.Now,
-                        timestampLocal = DateTime.Now
+                        timestamp = DateTime.Now
                     };
                     _context.HistoryTables.Add(historyRecord);
                     await _context.SaveChangesAsync();

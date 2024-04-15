@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RulesEngine8.Models;
+using RulesEngine8.Services;
 using System.ComponentModel.DataAnnotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -12,10 +13,13 @@ namespace RulesEngine8.Controllers
     public class SensorController : ControllerBase
     {
         private readonly RulesEngineDBContext _context;
-        public SensorController(RulesEngineDBContext context)
+        private readonly IEmailService _emailService;
+        public SensorController(RulesEngineDBContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
+
         // GET: api/<SensorController>
         [HttpGet]
         public IEnumerable<string> Get()
@@ -54,7 +58,9 @@ namespace RulesEngine8.Controllers
                 // testing db read, json data retreival"
                 if (sendEmailValue)
                 {
-                    return Ok(new { hi = "Email will be sent!", Emailaddress = configJson.email });
+                    // Send email using the injected service
+                   // _emailService.SendEmail(configJson.email, "Subject: ALARM", "Hi, an alarm was triggered. Please check. Kind regards, X");
+                    return Ok(new { email_body = "Alarm Triggered!", Emailaddress = configJson.email });
                 }
             }
             // return params in the response

@@ -9,6 +9,7 @@ namespace RulesEngine8.Models
         public RulesEngineDBContext(DbContextOptions<RulesEngineDBContext> options) : base(options) { }
         public DbSet<ConfigItemModel> ConfigItems { get; set; }
         public DbSet<SensorModel> Sensors { get; set; }
+        public DbSet<HistoryTable> HistoryTables { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -18,6 +18,7 @@ namespace RulesEngine8.Controllers
         {
             _context = context;
             _emailService = emailService;
+
         }
 
         // GET: api/<SensorController>
@@ -42,27 +43,50 @@ namespace RulesEngine8.Controllers
 
         // POST api/<ConfigController>
         [HttpPost("districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
-        public IActionResult Post([FromQuery, Required] string hostname, string district, string assetType, string assetKey, string sensorKey, string sensorType, [FromBody] SensorModel sensor)
+        public async Task<IActionResult> Post(
+            [FromQuery, Required] string hostname,
+            string district,
+            string assetType,
+            string assetKey,
+            string sensorKey,
+            string sensorType,
+            [FromBody] SensorModel sensor)
         {
-            // compare with DB values
-            // Retrieve the row from the database where Id = 1
+            // Retrieve the row from the database where assetKey is the one sent in thru API
             var configItem = _context.ConfigItems.FirstOrDefault(x => x.AssetID == assetKey);
             if (configItem != null)
             {
-                // Parse the JSON stored in the Config column
                 var configJson = configItem.Config;
-
-                // Extract the value of "sendEmail" from the JSON
                 bool sendEmailValue = (bool)configJson.sendEmail;
 
-                // testing db read, json data retreival"
                 if (sendEmailValue)
                 {
-                    // Send email using the injected service
-                   // _emailService.SendEmail(configJson.email, "Subject: ALARM", "Hi, an alarm was triggered. Please check. Kind regards, X");
+                    var historyRecord = new HistoryTable
+                    {
+                        emailSent = sendEmailValue,
+                        emailContent = "Hi! Alarm Triggered!",
+                        timestamp = DateTime.Now,
+                        timestampLocal = DateTime.Now
+                    };
+                    _context.HistoryTables.Add(historyRecord);
+                    await _context.SaveChangesAsync();
+
                     return Ok(new { email_body = "Alarm Triggered!", Emailaddress = configJson.email });
                 }
+                else
+                {
+                    var historyRecord = new HistoryTable
+                    {
+                        emailSent = sendEmailValue,
+                        emailContent = null,
+                        timestamp = DateTime.Now,
+                        timestampLocal = DateTime.Now
+                    };
+                    _context.HistoryTables.Add(historyRecord);
+                    await _context.SaveChangesAsync();
+                }
             }
+
             // return params in the response
             return Ok(new { Hostname = hostname, District = district, AssetType = assetType, AssetKey = assetKey, SensorKey = sensorKey, SensorType = sensorType, RequestBody = sensor });
         }

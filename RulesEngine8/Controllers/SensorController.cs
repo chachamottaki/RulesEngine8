@@ -63,7 +63,7 @@ namespace RulesEngine8.Controllers
                 string longDescription = configItem.Config.longDescription;
                 bool sendEmailValue = (bool)configJson.sendEmail;
                 string recipient = configJson.email;
-                string email = String.Format("Hi! Alarm Triggered for asset {0}! Short description {1} Long Description: {2}", deviceID, shortDescription, longDescription);
+                string email = String.Format("Hi! Alarm Triggered for device {0}; asset {1}! Short description {2} Long Description: {3}", deviceID,assetKey,shortDescription, longDescription);
 
                 if (sendEmailValue)
                 {
@@ -72,7 +72,6 @@ namespace RulesEngine8.Controllers
                         assetUUID = UUID,
                         emailSent = sendEmailValue,
                         emailRecipient = recipient,
-                        //emailContent = "hi",
                         emailContent = email,
                         timestamp = DateTime.Now
                     };

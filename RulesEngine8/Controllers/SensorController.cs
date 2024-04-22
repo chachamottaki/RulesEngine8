@@ -58,8 +58,12 @@ namespace RulesEngine8.Controllers
             {
                 var configJson = configItem.Config;
                 string UUID = configItem.UUID;
+                string deviceID = configItem.DeviceID;
+                string shortDescription = configItem.Config.shortDescription;
+                string longDescription = configItem.Config.longDescription;
                 bool sendEmailValue = (bool)configJson.sendEmail;
                 string recipient = configJson.email;
+                string email = String.Format("Hi! Alarm Triggered for asset {0}! Short description {1} Long Description: {2}", deviceID, shortDescription, longDescription);
 
                 if (sendEmailValue)
                 {
@@ -68,7 +72,8 @@ namespace RulesEngine8.Controllers
                         assetUUID = UUID,
                         emailSent = sendEmailValue,
                         emailRecipient = recipient,
-                        emailContent = "Hi! Alarm Triggered!",
+                        //emailContent = "hi",
+                        emailContent = email,
                         timestamp = DateTime.Now
                     };
                     _context.HistoryTables.Add(historyRecord);
@@ -82,8 +87,7 @@ namespace RulesEngine8.Controllers
                     {
                         assetUUID = UUID,
                         emailSent = sendEmailValue,
-                        emailRecipient = recipient,
-                        emailContent = null,
+                        emailRecipient = null,
                         timestamp = DateTime.Now
                     };
                     _context.HistoryTables.Add(historyRecord);

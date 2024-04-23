@@ -50,6 +50,25 @@ namespace RuleEngine8.Controllers
             return CreatedAtAction(nameof(GetConfigItem), new { id = configItem.Id }, configItem);
         }
 
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile()
+        {
+            var file = Request.Form.Files[0];
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("File not selected or empty.");
+            }
+
+            string firstLine;
+            using (var reader = new StreamReader(file.OpenReadStream()))
+            {
+                firstLine = await reader.ReadLineAsync();
+            }
+
+            return Ok(new { message = $"First line of the uploaded file: {firstLine}" });
+        }
+
         // PUT api/<ConfigController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult<ConfigItemModel>> PutConfigItem(int id, ConfigItemModel configItem)

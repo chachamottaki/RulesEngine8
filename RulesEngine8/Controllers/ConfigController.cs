@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RulesEngine8.Models;
 using System.ComponentModel.DataAnnotations;
@@ -49,7 +50,7 @@ namespace RuleEngine8.Controllers
 
             return CreatedAtAction(nameof(GetConfigItem), new { id = configItem.Id }, configItem);
         }
-
+        private readonly string jsonFilePath = "data.json";
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile()
         {
@@ -60,13 +61,24 @@ namespace RuleEngine8.Controllers
                 return BadRequest("File not selected or empty.");
             }
 
-            string firstLine;
+            //string firstLine;
+            string fileContent;
             using (var reader = new StreamReader(file.OpenReadStream()))
             {
-                firstLine = await reader.ReadLineAsync();
+                //firstLine = await reader.ReadLineAsync();
+                fileContent = await reader.ReadToEndAsync();
+            }
+            // Read existing JSON data from the file
+            string jsonData = "{}";
+            if (System.IO.File.Exists(jsonFilePath))
+            {
+                jsonData = await System.IO.File.ReadAllTextAsync(jsonFilePath);
             }
 
-            return Ok(new { message = $"First line of the uploaded file: {firstLine}" });
+            // Write the updated JSON data back to the file
+            await System.IO.File.WriteAllTextAsync(jsonFilePath, jsonData);
+
+            return Ok(new { message = $"File content: {fileContent}" });
         }
 
         // PUT api/<ConfigController>/5

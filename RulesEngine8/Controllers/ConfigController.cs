@@ -50,7 +50,7 @@ namespace RuleEngine8.Controllers
 
             return CreatedAtAction(nameof(GetConfigItem), new { id = configItem.Id }, configItem);
         }
-        private readonly string jsonFilePath = "data.json";
+        
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile()
         {
@@ -62,23 +62,40 @@ namespace RuleEngine8.Controllers
             }
 
             //string firstLine;
-            string fileContent;
+            //string fileContent;
+            List<string> sender = new List<string>();
+            List<string> recipients = new List<string>();
+            List<string> elementsR = new List<string>();
+            List<string> elementsS = new List<string>();
             using (var reader = new StreamReader(file.OpenReadStream()))
             {
+
                 //firstLine = await reader.ReadLineAsync();
-                fileContent = await reader.ReadToEndAsync();
+                //fileContent = await reader.ReadToEndAsync();
+                for (string line = await reader.ReadLineAsync(); line != null; line = await reader.ReadLineAsync())
+                {
+                    // Check each line against patterns using switch case
+                    switch (line)
+                    {
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sMailFrom"):
+                            
+                            elementsR.AddRange(line.Split("'"));
+                            recipients.Add(elementsR[1]);
+                            break;
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.asReceipients"):
+                            elementsS.AddRange(line.Split("'"));
+                            sender.Add(elementsS[1]);
+                            break;
+                        // more cases
+                        default:
+                            //don't match any pattern
+                            break;
+                    }
+                }
             }
-            // Read existing JSON data from the file
-            string jsonData = "{}";
-            if (System.IO.File.Exists(jsonFilePath))
-            {
-                jsonData = await System.IO.File.ReadAllTextAsync(jsonFilePath);
-            }
-
-            // Write the updated JSON data back to the file
-            await System.IO.File.WriteAllTextAsync(jsonFilePath, jsonData);
-
-            return Ok(new { message = $"File content: {fileContent}" });
+         
+            
+            return Ok(new { message = String.Format("File Uploaded! Any alarm mail for this device will be sent TO: {0}, FROM: {1}", recipients[0], sender[0]) });
         }
 
         // PUT api/<ConfigController>/5

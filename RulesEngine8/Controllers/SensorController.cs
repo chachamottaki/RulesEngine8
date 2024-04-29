@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RulesEngine8.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class SensorController : ControllerBase
     {
@@ -22,24 +22,24 @@ namespace RulesEngine8.Controllers
         }
 
         // GET: api/<SensorController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        //[HttpGet]
+        //public IEnumerable<string> Get()
+        //{
+            //return new string[] { "value1", "value2" };
+        //}
 
         // GET api/<SensorController>/5
-        [HttpGet("{id}")]
+        /*[HttpGet("{id}")]
         public string Get(int id)
         {
             return "value";
-        }
+        }*/
 
         // POST api/<SensorController>
-        [HttpPost]
+        /*[HttpPost]
         public void Post([FromBody] string value)
         {
-        }
+        }*/
 
         // POST api/<ConfigController>
         [HttpPost("districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
@@ -58,6 +58,7 @@ namespace RulesEngine8.Controllers
             {
                 var configJson = configItem.Config;
                 string UUID = configItem.UUID;
+                //string deviceID = hostname;
                 string deviceID = configItem.DeviceID;
                 string shortDescription = configItem.Config.shortDescription;
                 string longDescription = configItem.Config.longDescription;
@@ -99,15 +100,15 @@ namespace RulesEngine8.Controllers
         }
 
         // PUT api/<SensorController>/5
-        [HttpPut("{id}")]
+        /*[HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
-        }
+        }*/
 
         // DELETE api/<SensorController>/5
-        [HttpDelete("{id}")]
+        /*[HttpDelete("{id}")]
         public void Delete(int id)
         {
-        }
+        }*/
     }
 }

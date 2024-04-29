@@ -12,8 +12,8 @@ using RulesEngine8.Models;
 namespace RulesEngine8.Migrations
 {
     [DbContext(typeof(RulesEngineDBContext))]
-    [Migration("20240411125737_First_migration")]
-    partial class First_migration
+    [Migration("20240418145430_add Tables")]
+    partial class addTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,34 @@ namespace RulesEngine8.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ConfigItems");
+                });
+
+            modelBuilder.Entity("RulesEngine8.Models.HistoryTable", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("assetUUID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("emailContent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("emailRecipient")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("emailSent")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HistoryTables");
                 });
 
             modelBuilder.Entity("RulesEngine8.Models.SensorModel", b =>
@@ -94,12 +122,17 @@ namespace RulesEngine8.Migrations
                             b1.Property<int>("ConfigItemModelId")
                                 .HasColumnType("int");
 
-                            b1.Property<string>("Email")
-                                .IsRequired()
+                            b1.Property<string>("email")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("longDescription")
                                 .HasColumnType("nvarchar(max)");
 
                             b1.Property<bool>("sendEmail")
                                 .HasColumnType("bit");
+
+                            b1.Property<string>("shortDescription")
+                                .HasColumnType("nvarchar(max)");
 
                             b1.HasKey("ConfigItemModelId");
 

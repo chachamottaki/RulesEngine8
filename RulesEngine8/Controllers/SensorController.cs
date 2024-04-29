@@ -79,6 +79,9 @@ namespace RulesEngine8.Controllers
                     _context.HistoryTables.Add(historyRecord);
                     await _context.SaveChangesAsync();
 
+                    // Send email
+                    //await _emailService.SendEmailAsync(recipient, "Alarm Triggered", email);
+
                     return Ok(new { email_body = "Alarm Triggered!", Emailaddress = recipient });
                 }
                 else

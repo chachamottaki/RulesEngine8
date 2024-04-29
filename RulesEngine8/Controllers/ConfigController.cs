@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace RuleEngine8.Controllers
 {
-    [Route("")]
+    [Route("[controller]")]
     [ApiController]
     public class ConfigController : ControllerBase
     {
@@ -50,8 +50,8 @@ namespace RuleEngine8.Controllers
 
             return CreatedAtAction(nameof(GetConfigItem), new { id = configItem.Id }, configItem);
         }
-        
-        [HttpPost("upload")]
+
+        [HttpPut("upload")]
         public async Task<IActionResult> UploadFile()
         {
             var file = Request.Form.Files[0];
@@ -61,41 +61,53 @@ namespace RuleEngine8.Controllers
                 return BadRequest("File not selected or empty.");
             }
 
-            //string firstLine;
-            //string fileContent;
-            List<string> sender = new List<string>();
-            List<string> recipients = new List<string>();
-            List<string> elementsR = new List<string>();
-            List<string> elementsS = new List<string>();
+            List<string> temp = new List<string>();
+            List<string> tempRelements = new List<string>();
+            List<string> tempSelements = new List<string>();
+            Dictionary<string, string> settings = new Dictionary<string, string>();
+
             using (var reader = new StreamReader(file.OpenReadStream()))
             {
-
-                //firstLine = await reader.ReadLineAsync();
-                //fileContent = await reader.ReadToEndAsync();
                 for (string line = await reader.ReadLineAsync(); line != null; line = await reader.ReadLineAsync())
                 {
-                    // Check each line against patterns using switch case
                     switch (line)
                     {
+                        case string s when s.Contains("PROJECTSETTINGS.sLuxHostname"):
+                            temp.AddRange(line.Split("'"));
+                            settings["DeviceID"] = temp[1];
+                            temp.Clear();
+                            break;
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sASMTP"):
+
+                            break;
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.wSMTPPort"):
+
+                            break;
                         case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sMailFrom"):
-                            
-                            elementsR.AddRange(line.Split("'"));
-                            recipients.Add(elementsR[1]);
+                            tempRelements.AddRange(line.Split("'"));
+                            settings["recipients"] = tempRelements[1];
                             break;
                         case string s when s.Contains("PROJECTSETTINGS.typMailSettings.asReceipients"):
-                            elementsS.AddRange(line.Split("'"));
-                            sender.Add(elementsS[1]);
+                            tempSelements.AddRange(line.Split("'"));
+                            settings["sender"] = tempSelements[1];
                             break;
-                        // more cases
+                        case string s when s.Contains(""):
+                            
+                            break;
                         default:
                             //don't match any pattern
                             break;
                     }
                 }
             }
-         
-            
-            return Ok(new { message = String.Format("File Uploaded! Any alarm mail for this device will be sent TO: {0}, FROM: {1}", recipients[0], sender[0]) });
+
+            var configItem = _context.ConfigItems.FirstOrDefault(x => x.DeviceID == settings["DeviceID"] );
+            if (configItem.Config.email != settings["recipients"])
+            {
+                configItem.Config.email = settings["recipients"];
+                _context.SaveChanges();
+            }
+            return Ok(new { message = String.Format("File Uploaded! Any alarm mail for this device should be sent TO: {0}, FROM: {1}", settings["recipients"], settings["sender"]) });
         }
 
         // PUT api/<ConfigController>/5

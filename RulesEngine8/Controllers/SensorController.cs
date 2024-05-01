@@ -60,8 +60,8 @@ namespace RulesEngine8.Controllers
                 string UUID = configItem.UUID;
                 //string deviceID = hostname;
                 string deviceID = configItem.DeviceID;
-                string shortDescription = configItem.Config.shortDescription;
-                string longDescription = configItem.Config.longDescription;
+                string shortDescription = "";//configItem.Config.shortDescription;
+                string longDescription = "";//configItem.Config.longDescription;
                 bool sendEmailValue = (bool)configJson.sendEmail;
                 string recipient = configJson.email;
                 string email = String.Format("Hi! Alarm Triggered for device {0}; asset {1}! Short description {2} Long Description: {3}", deviceID,assetKey,shortDescription, longDescription);

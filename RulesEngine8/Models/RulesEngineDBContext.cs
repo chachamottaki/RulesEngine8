@@ -15,7 +15,10 @@ namespace RulesEngine8.Models
         {
             modelBuilder
             .Entity<ConfigItemModel>()
-            .OwnsOne(configItem => configItem.Config, builder => { builder.ToJson(); });
+            .OwnsOne(configItem => configItem.Config, builder => { builder.ToJson(); })
+            .OwnsOne(configItem => configItem.digitalInputs, builder => { builder.ToJson(); })
+            .OwnsOne(configItem => configItem.digitalOutputs, builder => { builder.ToJson(); });
+            
 
         }
     }

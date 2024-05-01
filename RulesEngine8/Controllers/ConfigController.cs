@@ -51,7 +51,7 @@ namespace RuleEngine8.Controllers
             return CreatedAtAction(nameof(GetConfigItem), new { id = configItem.Id }, configItem);
         }
 
-        [HttpPut("upload")]
+        [HttpPost("upload")]
         public async Task<IActionResult> UploadFile()
         {
             var file = Request.Form.Files[0];
@@ -61,54 +61,38 @@ namespace RuleEngine8.Controllers
                 return BadRequest("File not selected or empty.");
             }
 
-            List<string> temp = new List<string>();
-            List<string> tempRelements = new List<string>();
-            List<string> tempSelements = new List<string>();
-            Dictionary<string, string> settings = new Dictionary<string, string>();
+            Dictionary<string, string> settings = await ParseSettingsFromFileAsync(file);
 
-            using (var reader = new StreamReader(file.OpenReadStream()))
+            var configItem = _context.ConfigItems.FirstOrDefault(x => x.DeviceID == settings["DeviceID"]);
+            if (configItem != null)
             {
-                for (string line = await reader.ReadLineAsync(); line != null; line = await reader.ReadLineAsync())
+                if (configItem.Config.email != settings["recipients"])
                 {
-                    switch (line)
-                    {
-                        case string s when s.Contains("PROJECTSETTINGS.sLuxHostname"):
-                            temp.AddRange(line.Split("'"));
-                            settings["DeviceID"] = temp[1];
-                            temp.Clear();
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sASMTP"):
-
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.wSMTPPort"):
-
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sMailFrom"):
-                            tempRelements.AddRange(line.Split("'"));
-                            settings["recipients"] = tempRelements[1];
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.asReceipients"):
-                            tempSelements.AddRange(line.Split("'"));
-                            settings["sender"] = tempSelements[1];
-                            break;
-                        case string s when s.Contains(""):
-                            
-                            break;
-                        default:
-                            //don't match any pattern
-                            break;
-                    }
+                    configItem.Config.email = settings["recipients"];
+                    _context.SaveChanges();
                 }
             }
-
-            var configItem = _context.ConfigItems.FirstOrDefault(x => x.DeviceID == settings["DeviceID"] );
-            if (configItem.Config.email != settings["recipients"])
+            else
             {
-                configItem.Config.email = settings["recipients"];
-                _context.SaveChanges();
+                /// Create a new ConfigItem since it doesn't exist
+                var newconfigItem = new ConfigItemModel
+                {
+                    DeviceID = settings["DeviceID"],
+                    Config = new ConfigJson
+                    {
+                        email = settings["recipients"]
+                    }
+                };
+
+                // Add the new configItem to the database and save changes
+                _context.ConfigItems.Add(newconfigItem);
+                await _context.SaveChangesAsync();
             }
-            return Ok(new { message = String.Format("File Uploaded! Any alarm mail for this device should be sent TO: {0}, FROM: {1}", settings["recipients"], settings["sender"]) });
+
+
+            return Ok(settings);
         }
+
 
         // PUT api/<ConfigController>/5
         [HttpPut("{id}")]
@@ -160,6 +144,81 @@ namespace RuleEngine8.Controllers
             _context.ConfigItems.Remove(configitem);
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+
+        private async Task<Dictionary<string, string>> ParseSettingsFromFileAsync(IFormFile file)
+        {
+            List<string> temp = new List<string>();
+            List<string> tempRelements = new List<string>();
+            List<string> tempSelements = new List<string>();
+            Dictionary<string, string> settings = new Dictionary<string, string>();
+
+            using (var reader = new StreamReader(file.OpenReadStream()))
+            {
+                for (string line = await reader.ReadLineAsync(); line != null; line = await reader.ReadLineAsync())
+                {
+                    switch (line)
+                    {
+                        case string s when s.Contains("PROJECTSETTINGS.sLuxHostname"):
+                            temp.AddRange(line.Split("'"));
+                            settings["DeviceID"] = temp[1];
+                            temp.Clear();
+                            break;
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sASMTP"):
+                            // Add logic for handling this case
+                            break;
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.wSMTPPort"):
+                            // Add logic for handling this case
+                            break;
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sMailFrom"):
+                            tempRelements.AddRange(line.Split("'"));
+                            settings["recipients"] = tempRelements[1];
+                            break;
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.asReceipients"):
+                            tempSelements.AddRange(line.Split("'"));
+                            settings["sender"] = tempSelements[1];
+                            break;
+                        default:
+                            //
+                            break;
+                    }
+                }
+            }
+
+            return settings;
+        }
+
+        private async Task<Dictionary<string, string>> ParseDIFromFileAsync(IFormFile file)
+        {
+            List<string> temp = new List<string>();
+            Dictionary<string, string> settings = new Dictionary<string, string>();
+
+            using (var reader = new StreamReader(file.OpenReadStream()))
+            {
+                for (string line = await reader.ReadLineAsync(); line != null; line = await reader.ReadLineAsync())
+                {
+                    switch (line)
+                    {
+                        case string s when s.Contains("PROJECTSETTINGS.sLuxHostname"):
+                            temp.AddRange(line.Split("'"));
+                            settings["DeviceID"] = temp[1];
+                            temp.Clear();
+                            break;
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sASMTP"):
+                            // Add logic for handling this case
+                            break;
+                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.wSMTPPort"):
+                            // Add logic for handling this case
+                            break;
+                        default:
+                            //
+                            break;
+                    }
+                }
+            }
+
+            return settings;
         }
     }
 }

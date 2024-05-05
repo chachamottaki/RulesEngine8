@@ -66,7 +66,8 @@ namespace RuleEngine8.Controllers
                     return BadRequest("File not selected or empty.");
                 }
 
-                string configType = "deviceSettings"; // needs to be changed depending on what's coming from react select thingy  //
+                //string configType = "deviceSettings"; // needs to be changed depending on what's coming from react select thingy  //
+                string configType = "DI";
 
                 if (configType == "deviceSettings")
                 {
@@ -106,6 +107,8 @@ namespace RuleEngine8.Controllers
                     //DI
 
                     //subDI
+
+                    return Ok(subDI);
 
                 }
 

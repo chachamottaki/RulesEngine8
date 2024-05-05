@@ -110,10 +110,10 @@ public class ConfigFileParsingService
                             break;
                     }
                 }
-                else if (line.Split('.').Length == 4)
+                else if (line.Split('.').Length >= 4)
                 {
                     string id = string.Format("{0}.{1}", line.Split(".")[1], line.Split(".")[2]);
-                    bool idExists = DI.Any(dict => dict.ContainsKey("id") && dict["id"] == id);
+                    bool idExists = subDI.Any(dict => dict.ContainsKey("id") && dict["id"] == id);
 
                     if (!idExists)
                     {
@@ -123,7 +123,7 @@ public class ConfigFileParsingService
                     }
                     else
                     {
-                        currentDict = DI.FirstOrDefault(dict => dict.ContainsKey("id") && dict["id"] == id);
+                        currentDict = subDI.FirstOrDefault(dict => dict.ContainsKey("id") && dict["id"] == id);
                     }
                     switch (line)
                     {

@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RulesEngine8.Models;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text.Json;
 
 namespace RuleEngine8.Controllers
@@ -13,9 +14,12 @@ namespace RuleEngine8.Controllers
     public class ConfigController : ControllerBase
     {
         private readonly RulesEngineDBContext _context;
-        public ConfigController(RulesEngineDBContext context)
+        private readonly ConfigFileParsingService _fileParsingService;
+
+        public ConfigController(RulesEngineDBContext context, ConfigFileParsingService fileParsingService)
         {
             _context = context;
+            _fileParsingService = fileParsingService;
         }
 
         // GET: api/<ValuesController>
@@ -54,43 +58,71 @@ namespace RuleEngine8.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile()
         {
-            var file = Request.Form.Files[0];
-
-            if (file == null || file.Length == 0)
+            //var file = Request.Form.Files[0]; //access first file uploaded
+            foreach (var file in Request.Form.Files)
             {
-                return BadRequest("File not selected or empty.");
-            }
-
-            Dictionary<string, string> settings = await ParseSettingsFromFileAsync(file);
-
-            var configItem = _context.ConfigItems.FirstOrDefault(x => x.DeviceID == settings["DeviceID"]);
-            if (configItem != null)
-            {
-                if (configItem.Config.email != settings["recipients"])
+                if (file == null || file.Length == 0)
                 {
-                    configItem.Config.email = settings["recipients"];
-                    _context.SaveChanges();
+                    return BadRequest("File not selected or empty.");
                 }
-            }
-            else
-            {
-                /// Create a new ConfigItem since it doesn't exist
-                var newconfigItem = new ConfigItemModel
+
+                string configType = "deviceSettings"; // needs to be changed depending on what's coming from react select thingy  //
+
+                if (configType == "deviceSettings")
                 {
-                    DeviceID = settings["DeviceID"],
-                    Config = new ConfigJson
+                    Dictionary<string, string> settings = await _fileParsingService.ParseSettingsFromFileAsync(file);
+                    var configItem = _context.ConfigItems.FirstOrDefault(x => x.DeviceID == settings["DeviceID"]);
+                    if (configItem != null)
                     {
-                        email = settings["recipients"]
+                        if (configItem.Config.email != settings["recipients"])
+                        {
+                            configItem.Config.email = settings["recipients"];
+                            _context.SaveChanges();
+                        }
                     }
-                };
+                    else
+                    {
+                        /// Create a new ConfigItem since it doesn't exist
+                        var newconfigItem = new ConfigItemModel
+                        {
+                            DeviceID = settings["DeviceID"],
+                            Config = new ConfigJson
+                            {
+                                email = settings["recipients"]
+                            }
+                        };
 
-                // Add the new configItem to the database and save changes
-                _context.ConfigItems.Add(newconfigItem);
-                await _context.SaveChangesAsync();
+                        // Add the new configItem to the database and save changes
+                        _context.ConfigItems.Add(newconfigItem);
+                        await _context.SaveChangesAsync();
+                    }
+                    return Ok(settings);
+                }
+
+                if (configType == "DI")
+                {
+                    (List<Dictionary<string, string>> DI, List<Dictionary<string, string>> subDI) = await _fileParsingService.ParseDIFromFileAsync(file);
+                    //var configItem = _context.ConfigItems.FirstOrDefault(x => x.DeviceID == );
+                    //DI
+
+                    //subDI
+
+                }
+
             }
 
+            
 
-            return Ok(settings);
+            
+
+            
+            
+            
+            //List<Dictionary<string, string>> DIs = await ParseDIFromFileAsync(file);
+
+
+          
+            return Ok("done");
         }
 
 
@@ -144,81 +176,6 @@ namespace RuleEngine8.Controllers
             _context.ConfigItems.Remove(configitem);
             await _context.SaveChangesAsync();
             return Ok();
-        }
-
-
-        private async Task<Dictionary<string, string>> ParseSettingsFromFileAsync(IFormFile file)
-        {
-            List<string> temp = new List<string>();
-            List<string> tempRelements = new List<string>();
-            List<string> tempSelements = new List<string>();
-            Dictionary<string, string> settings = new Dictionary<string, string>();
-
-            using (var reader = new StreamReader(file.OpenReadStream()))
-            {
-                for (string line = await reader.ReadLineAsync(); line != null; line = await reader.ReadLineAsync())
-                {
-                    switch (line)
-                    {
-                        case string s when s.Contains("PROJECTSETTINGS.sLuxHostname"):
-                            temp.AddRange(line.Split("'"));
-                            settings["DeviceID"] = temp[1];
-                            temp.Clear();
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sASMTP"):
-                            // Add logic for handling this case
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.wSMTPPort"):
-                            // Add logic for handling this case
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sMailFrom"):
-                            tempRelements.AddRange(line.Split("'"));
-                            settings["recipients"] = tempRelements[1];
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.asReceipients"):
-                            tempSelements.AddRange(line.Split("'"));
-                            settings["sender"] = tempSelements[1];
-                            break;
-                        default:
-                            //
-                            break;
-                    }
-                }
-            }
-
-            return settings;
-        }
-
-        private async Task<Dictionary<string, string>> ParseDIFromFileAsync(IFormFile file)
-        {
-            List<string> temp = new List<string>();
-            Dictionary<string, string> settings = new Dictionary<string, string>();
-
-            using (var reader = new StreamReader(file.OpenReadStream()))
-            {
-                for (string line = await reader.ReadLineAsync(); line != null; line = await reader.ReadLineAsync())
-                {
-                    switch (line)
-                    {
-                        case string s when s.Contains("PROJECTSETTINGS.sLuxHostname"):
-                            temp.AddRange(line.Split("'"));
-                            settings["DeviceID"] = temp[1];
-                            temp.Clear();
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sASMTP"):
-                            // Add logic for handling this case
-                            break;
-                        case string s when s.Contains("PROJECTSETTINGS.typMailSettings.wSMTPPort"):
-                            // Add logic for handling this case
-                            break;
-                        default:
-                            //
-                            break;
-                    }
-                }
-            }
-
-            return settings;
         }
     }
 }

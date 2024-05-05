@@ -10,6 +10,7 @@ builder.Services.AddDbContext<RulesEngineDBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("ConfigDBConnection")));
 
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ConfigFileParsingService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

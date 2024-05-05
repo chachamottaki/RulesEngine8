@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 public class ConfigFileParsingService
@@ -58,7 +59,8 @@ public class ConfigFileParsingService
             {
                 if (line.Split('.').Length == 3)
                 {
-                    string id = line.Split(".")[1];
+                    string raw_id = line.Split(".")[1];
+                    string id = ExtractId(raw_id);
                     bool idExists = DI.Any(dict => dict.ContainsKey("id") && dict["id"] == id);
 
                     if (!idExists)
@@ -112,7 +114,8 @@ public class ConfigFileParsingService
                 }
                 else if (line.Split('.').Length >= 4)
                 {
-                    string id = string.Format("{0}.{1}", line.Split(".")[1], line.Split(".")[2]);
+                    string raw_id = string.Format("{0}.{1}", line.Split(".")[1], line.Split(".")[2]);
+                    string id = ExtractId(raw_id);
                     bool idExists = subDI.Any(dict => dict.ContainsKey("id") && dict["id"] == id);
 
                     if (!idExists)
@@ -264,6 +267,34 @@ public class ConfigFileParsingService
         return (DI, subDI);
     }
 
+
+    // Method to extract ID from line
+    private string ExtractId(string line)
+    {
+        // Define a regular expression pattern to match numbers within square brackets
+        Regex regex = new Regex(@"\[(\d+)\]");
+
+        // Match the pattern in the line
+        MatchCollection matches = regex.Matches(line);
+
+        // If there are two matches, extract the numbers and concatenate them with a dot
+        if (matches.Count == 2)
+        {
+            string firstNumber = matches[0].Groups[1].Value;
+            string secondNumber = matches[1].Groups[1].Value;
+            return $"{firstNumber}.{secondNumber}";
+        }
+        if (matches.Count == 1)
+        {
+            string number = matches[0].Groups[1].Value;
+            return number;
+        }
+        else
+        {
+            // Return empty string or handle the case where there are not exactly two matches
+            return string.Empty;
+        }
+    }
 }
 
 

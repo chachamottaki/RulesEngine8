@@ -19,7 +19,7 @@ public class ConfigFileParsingService
             {
                 switch (line)
                 {
-                    case string s when s.Contains("PROJECTSETTINGS.sLuxHostname"):
+                    case string s when s.Contains("PROJECTSETTINGS.sLuxHostname"): //needs to be changed to actual param containing deviceID
                         temp.AddRange(line.Split("'"));
                         settings["DeviceID"] = temp[1];
                         temp.Clear();
@@ -80,7 +80,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["xExists"] = temp[1];
+                                currentDict["topIsActive"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -88,7 +88,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["usiIndex"] = temp[1];
+                                currentDict["TopIndex"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -96,7 +96,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["usiDIIndex"] = temp[1];
+                                currentDict["DIIndex"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -104,7 +104,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["uiNumChannels"] = temp[1];
+                                currentDict["NumChannels"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -134,7 +134,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["xExists"] = temp[1];
+                                currentDict["isActive"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -142,7 +142,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["sShortDescription"] = temp[1];
+                                currentDict["shortDescription"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -150,7 +150,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["sLongDescription"] = temp[1];
+                                currentDict["longDescription"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -158,7 +158,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["xTPST"] = temp[1];
+                                currentDict["isTPST"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -166,7 +166,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["xMail"] = temp[1];
+                                currentDict["sendEMail"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -174,7 +174,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["xInvert"] = temp[1];
+                                currentDict["Invert"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -182,7 +182,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.xIsAlarm"] = temp[1];
+                                currentDict["IsAlarm"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -190,7 +190,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.eInstallationType"] = temp[1];
+                                currentDict["InstallationType"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -198,7 +198,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.sInstallationKey"] = temp[1];
+                                currentDict["InstallationKey"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -206,7 +206,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.sSensorKey"] = temp[1];
+                                currentDict["SensorKey"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -214,7 +214,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.sSensorType"] = temp[1];
+                                currentDict["SensorType"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -222,7 +222,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.xSendOnChange"] = temp[1];
+                                currentDict["SendOnChange"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -230,7 +230,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.xSend"] = temp[1];
+                                currentDict["Send"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -238,7 +238,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.xError"] = temp[1];
+                                currentDict["Error"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -246,7 +246,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.sErrorMsg"] = temp[1];
+                                currentDict["ErrorMsg"] = temp[1];
                             }
                             temp.Clear();
                             break;
@@ -254,7 +254,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["typTPST.dtLastTime"] = temp[1];
+                                currentDict["LastTime"] = temp[1];
                             }
                             temp.Clear();
                             break;

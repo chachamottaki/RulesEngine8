@@ -57,7 +57,7 @@ namespace RulesEngine8.Controllers
             if (configItem != null)
             {
                 var configJson = configItem.Config;
-                string UUID = configItem.UUID;
+                //string UUID = configItem.UUID;
                 //string deviceID = hostname;
                 string deviceID = configItem.DeviceID;
                 string shortDescription = "";//configItem.Config.shortDescription;
@@ -70,7 +70,7 @@ namespace RulesEngine8.Controllers
                 {
                     var historyRecord = new HistoryTable
                     {
-                        assetUUID = UUID,
+                        //assetUUID = UUID,
                         emailSent = sendEmailValue,
                         emailRecipient = recipient,
                         emailContent = email,
@@ -88,7 +88,7 @@ namespace RulesEngine8.Controllers
                 {
                     var historyRecord = new HistoryTable
                     {
-                        assetUUID = UUID,
+                        //assetUUID = UUID,
                         emailSent = sendEmailValue,
                         emailRecipient = null,
                         timestamp = DateTime.Now

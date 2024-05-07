@@ -7,19 +7,21 @@ namespace RulesEngine8.Models
     public class RulesEngineDBContext : DbContext
     {
         public RulesEngineDBContext(DbContextOptions<RulesEngineDBContext> options) : base(options) { }
-        public DbSet<ConfigItemModel> ConfigItems { get; set; }
+        public DbSet<ConfigItem> ConfigItems { get; set; }
+        public DbSet<DI> DigitalInputs { get; set; }
         public DbSet<SensorModel> Sensors { get; set; }
         public DbSet<HistoryTable> HistoryTables { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder
-            .Entity<ConfigItemModel>()
-            .OwnsOne(configItem => configItem.Config, builder => { builder.ToJson(); })
-            .OwnsOne(configItem => configItem.digitalInputs, builder => { builder.ToJson(); })
-            .OwnsOne(configItem => configItem.digitalOutputs, builder => { builder.ToJson(); });
-            
+            modelBuilder.Entity<ConfigItem>()
+                .OwnsOne(configItem => configItem.Config, builder => { builder.ToJson(); });
 
+            modelBuilder.Entity<DI>()
+                .HasOne<ConfigItem>() // DI has one ConfigItem
+                .WithMany(c => c.DigitalInputs) // ConfigItem has many DigitalInputs
+                .HasForeignKey(di => di.ConfigItemID) // Foreign key relationship
+                .IsRequired(); // DigitalInputs are required
         }
     }
 }

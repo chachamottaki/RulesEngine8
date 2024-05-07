@@ -140,13 +140,13 @@ namespace RuleEngine8.Controllers
                         if (existingAsset != null)
                         {
                             // Check if the digital input already exists in the list
-                            var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.InstallationKey == installationKey);
+                            var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.DIId == subDiItem["id"]);
                             if (existingDI == null)
                             {
                                 // Add the new digital input to the existing list
-                                newDI.ConfigItemID = existingAsset.Id; // Associate the new digital input with the existing config item
+                                //newDI.ConfigItemID = existingAsset.Id; // Associate the new digital input with the existing config item
                                 existingAsset.DigitalInputs.Add(newDI);
-                                //----make sure Id is the same as AssetId found of existingAsset
+                                await _context.SaveChangesAsync();
                             }
                             else
                             {
@@ -164,11 +164,12 @@ namespace RuleEngine8.Controllers
                             };
 
                             _context.ConfigItems.Add(newAsset);
+                            await _context.SaveChangesAsync();
                         }
                     }
                     
                     await _context.SaveChangesAsync();
-                    return Ok(subDI);
+                    return Ok(_context.ConfigItems);
                 }
             }
 

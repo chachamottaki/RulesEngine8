@@ -2,12 +2,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using RulesEngine8.Models;
 using RulesEngine8.Services;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+//SQL Server
 builder.Services.AddDbContext<RulesEngineDBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("ConfigDBConnection")));
+
+//postgresql
+/*builder.Services.AddDbContext<RulesEngineDBContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));*/
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ConfigFileParsingService>();

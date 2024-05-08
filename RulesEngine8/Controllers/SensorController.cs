@@ -47,7 +47,8 @@ namespace RulesEngine8.Controllers
         // POST api/<ConfigController>
         [HttpPost("districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
         public async Task<IActionResult> Post(
-            [FromQuery, Required] string hostname,
+            [FromQuery, Required] 
+            string hostname,
             string district,
             string assetType,
             string assetKey,
@@ -75,7 +76,7 @@ namespace RulesEngine8.Controllers
                     string recipient = configJson.email;
                     string email = $"Hi! Alarm Triggered for device {deviceID}; asset {assetKey}! Short description: {shortDescription}, Long Description: {longDescription}";
 
-                    if (sendEmailValue && !invertSendEMail)
+                    if (sendEmailValue && !invertSendEMail && isAlarm)
                     {
                         var historyRecord = new HistoryTable
                         {
@@ -100,6 +101,9 @@ namespace RulesEngine8.Controllers
                         {
                             emailSent = sendEmailValue,
                             emailRecipient = null,
+                            alarmId = sensor.alarmId,
+                            assetId = assetKey,
+                            DeviceId = hostname,
                             timestamp = DateTime.Now
                         };
                         _context.HistoryTables.Add(historyRecord);

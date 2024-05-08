@@ -5,6 +5,7 @@ using RulesEngine8.Services;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -61,6 +62,7 @@ namespace RulesEngine8.Controllers
             {
                 var digitalInputs = JsonConvert.DeserializeObject<List<DI>>(configItem.DigitalInputsJson);
                 var alarm = digitalInputs.FirstOrDefault(di => di.alarmId == sensor.alarmId);
+                
                 if (alarm != null)
                 {
                     var configJson = configItem.Config;
@@ -90,8 +92,6 @@ namespace RulesEngine8.Controllers
 
                         // Send email
                         //await _emailService.SendEmailAsync(recipient, "Alarm Triggered", email);
-
-                        return Ok(new { email_body = "Alarm Triggered!", Emailaddress = recipient });
                     }
                     else
                     {
@@ -106,8 +106,6 @@ namespace RulesEngine8.Controllers
                     }
                 }
             }
-
-            // return params in the response
             return Ok(new { Hostname = hostname, District = district, AssetType = assetType, AssetKey = assetKey, SensorKey = sensorKey, SensorType = sensorType, RequestBody = sensor });
         }
 

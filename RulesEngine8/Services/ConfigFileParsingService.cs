@@ -24,12 +24,12 @@ public class ConfigFileParsingService
                         settings["DeviceID"] = temp[1];
                         temp.Clear();
                         break;
-                    case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sASMTP"):
+                    /*case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sASMTP"):
                         // Add logic for handling this case
                         break;
                     case string s when s.Contains("PROJECTSETTINGS.typMailSettings.wSMTPPort"):
                         // Add logic for handling this case
-                        break;
+                        break;*/
                     case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sMailFrom"):
                         tempRelements.AddRange(line.Split("'"));
                         settings["recipients"] = tempRelements[1];
@@ -59,8 +59,8 @@ public class ConfigFileParsingService
             {
                 if (line.Split('.').Length == 3)
                 {
-                    string raw_id = line.Split(".")[1];
-                    string id = ExtractId(raw_id);
+                    string raw_id = string.Format(line.Split(".")[1]);
+                    string id = string.Format("DI{0}", ExtractId(raw_id));
                     bool idExists = DI.Any(dict => dict.ContainsKey("id") && dict["id"] == id);
 
                     if (!idExists)
@@ -115,7 +115,7 @@ public class ConfigFileParsingService
                 else if (line.Split('.').Length >= 4)
                 {
                     string raw_id = string.Format("{0}.{1}", line.Split(".")[1], line.Split(".")[2]);
-                    string id = ExtractId(raw_id);
+                    string id = string.Format("DI{0}", ExtractId(raw_id));
                     bool idExists = subDI.Any(dict => dict.ContainsKey("id") && dict["id"] == id);
 
                     if (!idExists)
@@ -268,16 +268,12 @@ public class ConfigFileParsingService
     }
 
 
-    // Method to extract ID from line
     private string ExtractId(string line)
     {
-        // Define a regular expression pattern to match numbers within square brackets
         Regex regex = new Regex(@"\[(\d+)\]");
 
-        // Match the pattern in the line
         MatchCollection matches = regex.Matches(line);
 
-        // If there are two matches, extract the numbers and concatenate them with a dot
         if (matches.Count == 2)
         {
             string firstNumber = matches[0].Groups[1].Value;
@@ -291,7 +287,6 @@ public class ConfigFileParsingService
         }
         else
         {
-            // Return empty string or handle the case where there are not exactly two matches
             return string.Empty;
         }
     }

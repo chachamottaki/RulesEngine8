@@ -56,36 +56,64 @@ namespace RuleEngine8.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile()
+        public async Task<IActionResult> UploadFile([FromForm] List<IFormFile> files, [FromForm] List<string> configTypes, [FromForm] string device)
         {
-            //var file = Request.Form.Files[0]; //access first file uploaded
-            foreach (var file in Request.Form.Files)
+            if (files == null || files.Count == 0)
             {
+                return BadRequest("File not selected or empty.");
+            }
+            if (configTypes == null || configTypes.Count != files.Count)
+            {
+                return BadRequest("Number of values does not match the number of files.");
+            }
+            if (string.IsNullOrEmpty(device))
+            {
+                return BadRequest("Device is not specified.");
+            }
+            for (int i = 0; i < files.Count; i++)
+            {
+                var file = files[i];
+                string configType = configTypes[i];
+
                 if (file == null || file.Length == 0)
                 {
-                    return BadRequest("File not selected or empty.");
+                    return BadRequest($"File {i + 1} is empty.");
                 }
-
-                //string configType = "deviceSettings"; // needs to be changed depending on what's coming from react select thingy  //
-                string configType = "DI";
 
                 if (configType == "deviceSettings")
                 {
                     Dictionary<string, string> settings = await _fileParsingService.ParseSettingsFromFileAsync(file);
-                    var configItem = _context.ConfigItems.FirstOrDefault(x => x.DeviceID == settings["DeviceID"]);
-                    if (configItem != null)
+
+                    if (settings["recipients"] == null)
                     {
-                        if (configItem.Config.email != settings["recipients"])
+                        return BadRequest($"no email recipients found in file");
+                    }
+
+                    var configItems = _context.ConfigItems.Where(x => x.DeviceID == device).ToList();
+                    if (configItems.Count > 0)
+                    {
+                        foreach (var configItem in configItems)
                         {
-                            configItem.Config.email = settings["recipients"];
-                            _context.SaveChanges();
+                            if (configItem.Config != null && settings["recipients"] != null)
+                            {
+                                if (configItem.Config.email != settings["recipients"])
+                                {
+                                    configItem.Config.email = settings["recipients"];
+                                }
+                            }
+                            else if (configItem.Config == null && settings["recipients"] != null)
+                            {
+                                // Create only ConfigJson properties at existing ConfigItem
+                                configItem.Config = new ConfigJson
+                                {
+                                    email = settings["recipients"]
+                                };
+                            }
                         }
+                        await _context.SaveChangesAsync();
                     }
                     else
                     {
-                        /// Create a new ConfigItem since it doesn't exist
-                        /// 
-                        
                         var newconfigItem = new ConfigItem
                         {
                             DeviceID = settings["DeviceID"],
@@ -102,22 +130,20 @@ namespace RuleEngine8.Controllers
                     return Ok(settings);
                 }
 
-                if (configType == "DI")
+                else if (configType == "DI")
                 {
                     (List<Dictionary<string, string>> DI, List<Dictionary<string, string>> subDI) = await _fileParsingService.ParseDIFromFileAsync(file);
-
                     foreach (var subDiItem in subDI)
                     {
                         string installationKey = subDiItem["InstallationKey"];
 
-                        // Check if an entity with the same installation key exists in the database
                         var existingAsset = await _context.ConfigItems
                             .Include(e => e.DigitalInputs)
                             .FirstOrDefaultAsync(e => e.AssetID == installationKey);
 
                         DI newDI = new DI
                         {
-                            DIId = subDiItem["id"],
+                            alarmId = subDiItem["id"],
                             isActive = bool.Parse(subDiItem["isActive"]),
                             shortDescription = "test",
                             longDescription = subDiItem["longDescription"],
@@ -140,7 +166,8 @@ namespace RuleEngine8.Controllers
                         if (existingAsset != null)
                         {
                             // Check if the digital input already exists in the list
-                            var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.DIId == subDiItem["id"]);
+                            existingAsset.DeviceID = device;
+                            var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.alarmId == subDiItem["id"]);
                             if (existingDI == null)
                             {
                                 // Add the new digital input to the existing list
@@ -159,6 +186,7 @@ namespace RuleEngine8.Controllers
                             // Create a new ConfigItem with the new digital input
                             var newAsset = new ConfigItem
                             {
+                                DeviceID = device,
                                 AssetID = installationKey,
                                 DigitalInputs = new List<DI>() { newDI }
                             };

@@ -81,6 +81,7 @@ namespace RulesEngine8.Controllers
                         {
                             isAlarm = isAlarm,
                             alarmId = sensor.alarmId,
+                            assetId = assetKey,
                             DeviceId = hostname,
                             emailSent = sendEmailValue,
                             emailRecipient = recipient,

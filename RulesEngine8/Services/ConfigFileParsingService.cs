@@ -198,7 +198,7 @@ public class ConfigFileParsingService
                             temp.AddRange(line.Split(":="));
                             if (currentDict != null)
                             {
-                                currentDict["InstallationKey"] = temp[1];
+                                currentDict["InstallationKey"] = temp[1].Trim('\'');
                             }
                             temp.Clear();
                             break;

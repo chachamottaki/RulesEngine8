@@ -79,58 +79,7 @@ namespace RuleEngine8.Controllers
                 {
                     return BadRequest($"File {i + 1} is empty.");
                 }
-
-                if (configType == "deviceSettings")
-                {
-                    Dictionary<string, string> settings = await _fileParsingService.ParseSettingsFromFileAsync(file);
-
-                    if (settings["recipients"] == null)
-                    {
-                        return BadRequest($"no email recipients found in file");
-                    }
-
-                    var configItems = _context.ConfigItems.Where(x => x.DeviceID == device).ToList();
-                    if (configItems.Count > 0)
-                    {
-                        foreach (var configItem in configItems)
-                        {
-                            if (configItem.Config != null && settings["recipients"] != null)
-                            {
-                                if (configItem.Config.email != settings["recipients"])
-                                {
-                                    configItem.Config.email = settings["recipients"];
-                                }
-                            }
-                            else if (configItem.Config == null && settings["recipients"] != null)
-                            {
-                                // Create only ConfigJson properties at existing ConfigItem
-                                configItem.Config = new ConfigJson
-                                {
-                                    email = settings["recipients"]
-                                };
-                            }
-                        }
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        var newconfigItem = new ConfigItem
-                        {
-                            DeviceID = settings["DeviceID"],
-                            Config = new ConfigJson
-                            {
-                                email = settings["recipients"]
-                            }
-                        };
-
-                        // Add the new configItem to the database and save changes
-                        _context.ConfigItems.Add(newconfigItem);
-                        await _context.SaveChangesAsync();
-                    }
-                    return Ok(settings);
-                }
-
-                else if (configType == "DI")
+                if (configType == "DI")
                 {
                     (List<Dictionary<string, string>> DI, List<Dictionary<string, string>> subDI) = await _fileParsingService.ParseDIFromFileAsync(file);
                     foreach (var subDiItem in subDI)
@@ -183,24 +132,87 @@ namespace RuleEngine8.Controllers
                         }
                         else
                         {
-                            // Create a new ConfigItem with the new digital input
-                            var newAsset = new ConfigItem
+                            var deviceConfig = await _context.ConfigItems.FirstOrDefaultAsync(x => x.DeviceID == device && x.Config != null);
+                            if (deviceConfig != null)
                             {
-                                DeviceID = device,
-                                AssetID = installationKey,
-                                DigitalInputs = new List<DI>() { newDI }
-                            };
-
-                            _context.ConfigItems.Add(newAsset);
+                                var newAsset = new ConfigItem
+                                {
+                                    DeviceID = device,
+                                    AssetID = installationKey,
+                                    Config = new ConfigJson 
+                                    {
+                                        email = deviceConfig.Config.email
+                                    },
+                                    DigitalInputs = new List<DI>() { newDI }
+                                };
+                                _context.ConfigItems.Add(newAsset);
+                            }
+                            else
+                            {
+                                var newAsset = new ConfigItem
+                                {
+                                    DeviceID = device,
+                                    AssetID = installationKey,
+                                    DigitalInputs = new List<DI>() { newDI }
+                                };
+                                _context.ConfigItems.Add(newAsset);
+                            }
                             await _context.SaveChangesAsync();
                         }
                     }
-                    
+
                     await _context.SaveChangesAsync();
                     return Ok(_context.ConfigItems);
                 }
-            }
+                if (configType == "deviceSettings")
+                {
+                    Dictionary<string, string> settings = await _fileParsingService.ParseSettingsFromFileAsync(file);
 
+                    if (settings["recipients"] == null)
+                    {
+                        return BadRequest($"no email recipients found in file");
+                    }
+
+                    var configItems = _context.ConfigItems.Where(x => x.DeviceID == device).ToList();
+                    if (configItems.Count > 0)
+                    {
+                        foreach (var configItem in configItems)
+                        {
+                            if (configItem.Config != null && settings["recipients"] != null)
+                            {
+                                if (configItem.Config.email != settings["recipients"])
+                                {
+                                    configItem.Config.email = settings["recipients"];
+                                }
+                            }
+                            else if (configItem.Config == null && settings["recipients"] != null)
+                            {
+                                // Create only ConfigJson properties at existing ConfigItem
+                                configItem.Config = new ConfigJson
+                                {
+                                    email = settings["recipients"]
+                                };
+                            }
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        var newconfigItem = new ConfigItem
+                        {
+                            DeviceID = settings["DeviceID"],
+                            Config = new ConfigJson
+                            {
+                                email = settings["recipients"]
+                            }
+                        };
+
+                        // Add the new configItem to the database and save changes
+                        _context.ConfigItems.Add(newconfigItem);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
             return Ok("done");
         }
 

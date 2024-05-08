@@ -22,17 +22,7 @@ namespace RulesEngine8.Models
     }
     public class DI
     {
-        public int Id { get; set; }
-        public int ConfigItemID { get; set; }
-        //public ConfigItem ConfigItem { get; set; }
-        public bool topIsActive { get; set; }
-        public ushort topIndex { get; set; }
-        public ushort DIIndex { get; set; }
-        public uint NumChannels { get; set; }
-        public string? OrderNumber { get; set; }
-        public uint? topColor { get; set; }
-
-        public string DIId { get; set; }
+        public string alarmId { get; set; }
         public bool isActive { get; set; }
         //public ushort? Module { get; set; }
         //public ushort? index { get; set; }
@@ -59,7 +49,7 @@ namespace RulesEngine8.Models
         public bool Error { get; set; }
         public string? ErrorMsg { get; set; }
         public string? LastTime { get; set; } //type needs 2 b changed to DT
-        //------------------------------
+                                              //------------------------------
 
         //public int? Pulses { get; set; }
         //public bool? ResetPulses { get; set; }
@@ -69,5 +59,14 @@ namespace RulesEngine8.Models
         //public bool? TimeoutDetector { get; set; }
         //public PushButtonType PushButtonType { get; set; }
         //public ushort? AlarmKeyIndex { get; set; }
+
+        public int Id { get; set; }
+        public bool topIsActive { get; set; }
+        public ushort topIndex { get; set; }
+        public ushort DIIndex { get; set; }
+        public uint NumChannels { get; set; }
+        public string? OrderNumber { get; set; }
+        public uint? topColor { get; set; }
+        public int ConfigItemID { get; set; }
     }
 }

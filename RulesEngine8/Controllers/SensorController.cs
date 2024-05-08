@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using RulesEngine8.Models;
 using RulesEngine8.Services;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -52,49 +54,56 @@ namespace RulesEngine8.Controllers
             string sensorType,
             [FromBody] SensorModel sensor)
         {
-            // Retrieve the row from the database where assetKey is the one sent in thru API
+            
             var configItem = _context.ConfigItems.FirstOrDefault(x => x.AssetID == assetKey);
+            
             if (configItem != null)
             {
-                var configJson = configItem.Config;
-                //string UUID = configItem.UUID;
-                //string deviceID = hostname;
-                string deviceID = configItem.DeviceID;
-                string shortDescription = "";//configItem.Config.shortDescription;
-                string longDescription = "";//configItem.Config.longDescription;
-                bool sendEmailValue = (bool)configJson.sendEmail;
-                string recipient = configJson.email;
-                string email = String.Format("Hi! Alarm Triggered for device {0}; asset {1}! Short description {2} Long Description: {3}", deviceID,assetKey,shortDescription, longDescription);
-
-                if (sendEmailValue)
+                var digitalInputs = JsonConvert.DeserializeObject<List<DI>>(configItem.DigitalInputsJson);
+                var alarm = digitalInputs.FirstOrDefault(di => di.alarmId == sensor.alarmId);
+                if (alarm != null)
                 {
-                    var historyRecord = new HistoryTable
-                    {
-                        //assetUUID = UUID,
-                        emailSent = sendEmailValue,
-                        emailRecipient = recipient,
-                        emailContent = email,
-                        timestamp = DateTime.Now
-                    };
-                    _context.HistoryTables.Add(historyRecord);
-                    await _context.SaveChangesAsync();
+                    var configJson = configItem.Config;
+                    string deviceID = configItem.DeviceID;
+                    string shortDescription = alarm.shortDescription;
+                    string longDescription = alarm.longDescription;
+                    bool sendEmailValue = alarm.sendEmail;
+                    bool invertSendEMail = alarm.Invert;
+                    bool isAlarm = alarm.IsAlarm;
+                    string recipient = configJson.email;
+                    string email = $"Hi! Alarm Triggered for device {deviceID}; asset {assetKey}! Short description: {shortDescription}, Long Description: {longDescription}";
 
-                    // Send email
-                    //await _emailService.SendEmailAsync(recipient, "Alarm Triggered", email);
-
-                    return Ok(new { email_body = "Alarm Triggered!", Emailaddress = recipient });
-                }
-                else
-                {
-                    var historyRecord = new HistoryTable
+                    if (sendEmailValue && !invertSendEMail)
                     {
-                        //assetUUID = UUID,
-                        emailSent = sendEmailValue,
-                        emailRecipient = null,
-                        timestamp = DateTime.Now
-                    };
-                    _context.HistoryTables.Add(historyRecord);
-                    await _context.SaveChangesAsync();
+                        var historyRecord = new HistoryTable
+                        {
+                            isAlarm = isAlarm,
+                            alarmId = sensor.alarmId,
+                            DeviceId = hostname,
+                            emailSent = sendEmailValue,
+                            emailRecipient = recipient,
+                            emailContent = email,
+                            timestamp = DateTime.Now
+                        };
+                        _context.HistoryTables.Add(historyRecord);
+                        await _context.SaveChangesAsync();
+
+                        // Send email
+                        //await _emailService.SendEmailAsync(recipient, "Alarm Triggered", email);
+
+                        return Ok(new { email_body = "Alarm Triggered!", Emailaddress = recipient });
+                    }
+                    else
+                    {
+                        var historyRecord = new HistoryTable
+                        {
+                            emailSent = sendEmailValue,
+                            emailRecipient = null,
+                            timestamp = DateTime.Now
+                        };
+                        _context.HistoryTables.Add(historyRecord);
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
 

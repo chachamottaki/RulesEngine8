@@ -12,8 +12,8 @@ using RulesEngine8.Models;
 namespace RulesEngine8.Migrations
 {
     [DbContext(typeof(RulesEngineDBContext))]
-    [Migration("20240418145430_add Tables")]
-    partial class addTables
+    [Migration("20240508144057_Add_DB_Tables")]
+    partial class Add_DB_Tables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace RulesEngine8.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("RulesEngine8.Models.ConfigItemModel", b =>
+            modelBuilder.Entity("RulesEngine8.Models.ConfigItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,20 +34,106 @@ namespace RulesEngine8.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AssetID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DeviceID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UUID")
+                    b.Property<string>("DigitalInputsJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("ConfigItems");
+                });
+
+            modelBuilder.Entity("RulesEngine8.Models.DI", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ConfigItemID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DIIndex")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Error")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ErrorMsg")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InstallationKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InstallationType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Invert")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAlarm")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastTime")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("NumChannels")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("OrderNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Send")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SendOnChange")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SensorKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SensorType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("alarmId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isTPST")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("longDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("sendEmail")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("shortDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("topColor")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("topIndex")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("topIsActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConfigItemID");
+
+                    b.ToTable("DigitalInputs");
                 });
 
             modelBuilder.Entity("RulesEngine8.Models.HistoryTable", b =>
@@ -58,7 +144,13 @@ namespace RulesEngine8.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("assetUUID")
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("alarmId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("assetId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("emailContent")
@@ -68,6 +160,9 @@ namespace RulesEngine8.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("emailSent")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isAlarm")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("timestamp")
@@ -115,37 +210,44 @@ namespace RulesEngine8.Migrations
                     b.ToTable("Sensors");
                 });
 
-            modelBuilder.Entity("RulesEngine8.Models.ConfigItemModel", b =>
+            modelBuilder.Entity("RulesEngine8.Models.ConfigItem", b =>
                 {
                     b.OwnsOne("RulesEngine8.Models.ConfigJson", "Config", b1 =>
                         {
-                            b1.Property<int>("ConfigItemModelId")
+                            b1.Property<int>("ConfigItemId")
                                 .HasColumnType("int");
 
                             b1.Property<string>("email")
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.Property<string>("longDescription")
-                                .HasColumnType("nvarchar(max)");
-
                             b1.Property<bool>("sendEmail")
                                 .HasColumnType("bit");
 
-                            b1.Property<string>("shortDescription")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("ConfigItemModelId");
+                            b1.HasKey("ConfigItemId");
 
                             b1.ToTable("ConfigItems");
 
                             b1.ToJson("Config");
 
                             b1.WithOwner()
-                                .HasForeignKey("ConfigItemModelId");
+                                .HasForeignKey("ConfigItemId");
                         });
 
-                    b.Navigation("Config")
+                    b.Navigation("Config");
+                });
+
+            modelBuilder.Entity("RulesEngine8.Models.DI", b =>
+                {
+                    b.HasOne("RulesEngine8.Models.ConfigItem", null)
+                        .WithMany("DigitalInputs")
+                        .HasForeignKey("ConfigItemID")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RulesEngine8.Models.ConfigItem", b =>
+                {
+                    b.Navigation("DigitalInputs");
                 });
 #pragma warning restore 612, 618
         }

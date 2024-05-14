@@ -48,7 +48,6 @@ namespace RuleEngine8.Controllers
         [HttpPost]
         public async Task<ActionResult<ConfigItem>> PostConfigItem(ConfigItem configItem)
         {
-            // Add the configItem to the database and save changes
             _context.ConfigItems.Add(configItem);
             await _context.SaveChangesAsync();
 
@@ -118,14 +117,13 @@ namespace RuleEngine8.Controllers
                             existingAsset.DeviceID = device;
                             var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.alarmId == subDiItem["id"]);// Check if digital input (ex 1.1) already exists i/t list
                             
-                            if (existingDI == null) //if doesn' exist
+                            if (existingDI == null)
                             {
                                 existingAsset.DigitalInputs.Add(newDI);
                                 await _context.SaveChangesAsync();
                             }
                             else
                             {
-                                // Update the existing digital input if necessary (properties)
                                 existingDI.isActive = bool.Parse(subDiItem["isActive"]);
                                 existingDI.shortDescription = subDiItem["shortDescription"];
                                 existingDI.longDescription = subDiItem["longDescription"];
@@ -196,7 +194,6 @@ namespace RuleEngine8.Controllers
                     }
 
                     await _context.SaveChangesAsync();
-                    return Ok(_context.ConfigItems);
                 }
                 if (configType == "deviceSettings")
                 {
@@ -221,7 +218,6 @@ namespace RuleEngine8.Controllers
                             }
                             else if (configItem.Config == null && settings["recipients"] != null)
                             {
-                                // Create only ConfigJson properties at existing ConfigItem
                                 configItem.Config = new ConfigJson
                                 {
                                     email = settings["recipients"]
@@ -241,7 +237,6 @@ namespace RuleEngine8.Controllers
                             }
                         };
 
-                        // Add the new configItem to the database and save changes
                         _context.ConfigItems.Add(newconfigItem);
                         await _context.SaveChangesAsync();
                     }

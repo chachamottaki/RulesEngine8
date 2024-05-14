@@ -55,7 +55,7 @@ namespace RuleEngine8.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile([FromForm] List<IFormFile> files, [FromForm] List<string> configTypes, [FromForm] string device)
+        public async Task<IActionResult> UploadFile([FromForm] List<IFormFile> files, [FromForm] List<string> configTypes, [FromForm] string deviceName)
         {
             if (files == null || files.Count == 0)
             {
@@ -65,7 +65,7 @@ namespace RuleEngine8.Controllers
             {
                 return BadRequest("Number of values does not match the number of files.");
             }
-            if (string.IsNullOrEmpty(device))
+            if (string.IsNullOrEmpty(deviceName))
             {
                 return BadRequest("Device is not specified.");
             }
@@ -114,7 +114,7 @@ namespace RuleEngine8.Controllers
 
                         if (existingAsset != null)
                         {
-                            existingAsset.DeviceID = device;
+                            existingAsset.DeviceID = deviceName;
                             var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.alarmId == subDiItem["id"]);// Check if digital input (ex 1.1) already exists i/t list
                             
                             if (existingDI == null)
@@ -164,12 +164,12 @@ namespace RuleEngine8.Controllers
                         }
                         else
                         {
-                            var deviceConfig = await _context.ConfigItems.FirstOrDefaultAsync(x => x.DeviceID == device && x.Config != null);
+                            var deviceConfig = await _context.ConfigItems.FirstOrDefaultAsync(x => x.DeviceID == deviceName && x.Config != null);
                             if (deviceConfig != null)
                             {
                                 var newAsset = new ConfigItem
                                 {
-                                    DeviceID = device,
+                                    DeviceID = deviceName,
                                     AssetID = installationKey,
                                     Config = new ConfigJson 
                                     {
@@ -183,7 +183,7 @@ namespace RuleEngine8.Controllers
                             {
                                 var newAsset = new ConfigItem
                                 {
-                                    DeviceID = device,
+                                    DeviceID = deviceName,
                                     AssetID = installationKey,
                                     DigitalInputs = new List<DI>() { newDI }
                                 };
@@ -204,7 +204,7 @@ namespace RuleEngine8.Controllers
                         return BadRequest($"no email recipients found in file");
                     }
 
-                    var configItems = _context.ConfigItems.Where(x => x.DeviceID == device).ToList();
+                    var configItems = _context.ConfigItems.Where(x => x.DeviceID == deviceName).ToList();
                     if (configItems.Count > 0)
                     {
                         foreach (var configItem in configItems)

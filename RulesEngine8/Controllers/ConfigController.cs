@@ -89,12 +89,13 @@ namespace RuleEngine8.Controllers
                         var existingAsset = await _context.ConfigItems
                             .Include(e => e.DigitalInputs)
                             .FirstOrDefaultAsync(e => e.AssetID == installationKey);
+                        
 
                         DI newDI = new DI
                         {
                             alarmId = subDiItem["id"],
                             isActive = bool.Parse(subDiItem["isActive"]),
-                            shortDescription = "test",
+                            shortDescription = subDiItem["shortDescription"],
                             longDescription = subDiItem["longDescription"],
                             isTPST = bool.Parse(subDiItem["isTPST"]),
                             sendEmail = bool.Parse(subDiItem["sendEMail"]),
@@ -114,20 +115,53 @@ namespace RuleEngine8.Controllers
 
                         if (existingAsset != null)
                         {
-                            // Check if the digital input already exists in the list
                             existingAsset.DeviceID = device;
-                            var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.alarmId == subDiItem["id"]);
-                            if (existingDI == null)
+                            var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.alarmId == subDiItem["id"]);// Check if digital input (ex 1.1) already exists i/t list
+                            
+                            if (existingDI == null) //if doesn' exist
                             {
-                                // Add the new digital input to the existing list
-                                //newDI.ConfigItemID = existingAsset.Id; // Associate the new digital input with the existing config item
                                 existingAsset.DigitalInputs.Add(newDI);
                                 await _context.SaveChangesAsync();
                             }
                             else
                             {
                                 // Update the existing digital input if necessary (properties)
-                                // existingDI.Property = newValue;
+                                existingDI.isActive = bool.Parse(subDiItem["isActive"]);
+                                existingDI.shortDescription = subDiItem["shortDescription"];
+                                existingDI.longDescription = subDiItem["longDescription"];
+                                existingDI.isTPST = bool.Parse(subDiItem["isTPST"]);
+                                existingDI.sendEmail = bool.Parse(subDiItem["sendEMail"]);
+                                existingDI.Invert = bool.Parse(subDiItem["Invert"]);
+                                existingDI.IsAlarm = bool.Parse(subDiItem["IsAlarm"]);
+                                existingDI.InstallationType = subDiItem["InstallationType"];
+                                existingDI.SensorKey = subDiItem["SensorKey"];
+                                existingDI.SensorType = subDiItem["SensorType"];
+                                existingDI.SendOnChange = bool.Parse(subDiItem["SendOnChange"]);
+                                existingDI.Send = bool.Parse(subDiItem["Send"]);
+                                existingDI.Error = bool.Parse(subDiItem["Error"]);
+                                existingDI.ErrorMsg = subDiItem["ErrorMsg"];
+                                existingDI.LastTime = subDiItem["LastTime"];
+
+                                var DIline = await _context.DigitalInputs
+                                .FirstOrDefaultAsync(e => e.alarmId == subDiItem["id"]);
+
+                                DIline.isActive = bool.Parse(subDiItem["isActive"]);
+                                DIline.shortDescription = subDiItem["shortDescription"];
+                                DIline.longDescription = subDiItem["longDescription"];
+                                DIline.isTPST = bool.Parse(subDiItem["isTPST"]);
+                                DIline.sendEmail = bool.Parse(subDiItem["sendEMail"]);
+                                DIline.Invert = bool.Parse(subDiItem["Invert"]);
+                                DIline.IsAlarm = bool.Parse(subDiItem["IsAlarm"]);
+                                DIline.InstallationType = subDiItem["InstallationType"];
+                                DIline.SensorKey = subDiItem["SensorKey"];
+                                DIline.SensorType = subDiItem["SensorType"];
+                                DIline.SendOnChange = bool.Parse(subDiItem["SendOnChange"]);
+                                DIline.Send = bool.Parse(subDiItem["Send"]);
+                                DIline.Error = bool.Parse(subDiItem["Error"]);
+                                DIline.ErrorMsg = subDiItem["ErrorMsg"];
+                                DIline.LastTime = subDiItem["LastTime"];
+
+                                await _context.SaveChangesAsync();
                             }
                         }
                         else

@@ -6,22 +6,17 @@ namespace RulesEngine8.Models
     public class ConfigItem
     {
         public int Id { get; set; }
-        //public string? UUID { get; set; }
         public string? DeviceID { get; set; }
         public string? AssetID { get; set; }
-        public ConfigJson? Config { get; set; } //from DeviceSettings file
+        public ConfigJson? Config { get; set; } 
 
-        public List<DI> DigitalInputs { get; set; } //from DI file
+        public List<DI> DigitalInputs { get; set; } 
 
-        // You can serialize and deserialize the list of digital inputs to and from JSON
-        //[NotMapped]
         public string DigitalInputsJson
         {
             get => JsonConvert.SerializeObject(DigitalInputs);
             set => DigitalInputs = JsonConvert.DeserializeObject<List<DI>>(value);
         }
-
-
 
         //public List<DO>? digitalOutputs { get; set; }
         //public List<AI> analogInputs { get; set; }

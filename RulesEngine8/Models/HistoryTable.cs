@@ -3,8 +3,6 @@
     public class HistoryTable
     {
         public int Id { get; set; }
-
-        //public string? assetUUID { get; set; }
         public bool isAlarm { get; set; }
         public string? alarmId { get; set; }
         public string? assetId { get; set; }

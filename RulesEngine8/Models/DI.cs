@@ -48,8 +48,8 @@ namespace RulesEngine8.Models
         public bool Send { get; set; }
         public bool Error { get; set; }
         public string? ErrorMsg { get; set; }
-        public string? LastTime { get; set; } //type needs 2 b changed to DT
-                                              //------------------------------
+        public string? LastTime { get; set; }
+                                              
 
         //public int? Pulses { get; set; }
         //public bool? ResetPulses { get; set; }

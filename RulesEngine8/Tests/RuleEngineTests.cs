@@ -13,7 +13,6 @@ namespace RulesEngine8.Tests
                 .UseInMemoryDatabase(databaseName: "TestDb")
                 .Options;
 
-            // Insert test data into the in-memory database
             using (var context = new RulesEngineDBContext(options))
             {
                 var rule = new Rule
@@ -35,7 +34,6 @@ namespace RulesEngine8.Tests
                 context.SaveChanges();
             }
 
-            // Retrieve the data to ensure it was inserted correctly
             using (var context = new RulesEngineDBContext(options))
             {
                 var rule = await context.Rules.FirstOrDefaultAsync();

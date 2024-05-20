@@ -30,6 +30,12 @@ namespace RulesEngine8.Controllers
                 return BadRequest(new { error = "Nodes field is required but is null." });
             }
 
+            // Ensure ConfigurationJson is correctly serialized
+            foreach (var node in ruleChain.Nodes)
+            {
+                node.ConfigurationJson = JsonSerializer.Serialize(JsonSerializer.Deserialize<JsonElement>(node.ConfigurationJson));
+            }
+
             _context.RuleChains.Add(ruleChain);
             await _context.SaveChangesAsync();
 
@@ -93,21 +99,17 @@ namespace RulesEngine8.Controllers
         }
 
         [HttpPost("{id}/execute")]
-        public async Task<IActionResult> ExecuteRuleChain(int id, [FromBody] JsonElement inputData)
+        public async Task<IActionResult> ExecuteRuleChain(int id)
         {
             try
             {
-                // Convert JsonElement to JsonObject for easier manipulation
-                var inputDataObject = JsonObject.Create(inputData);
-                var context = new RuleExecutionContext { InputData = inputDataObject, Result = new JsonObject() };
+                var context = new RuleExecutionContext { Result = new JsonObject() };
 
-                // Debugging: Print the received input data
-                System.Diagnostics.Debug.WriteLine($"Received inputData: {inputDataObject}");
+                System.Diagnostics.Debug.WriteLine($"Executing rule chain ID: {id}");
 
                 await _ruleEngine.ExecuteRuleChain(id, context);
 
-                // Return the result in the response
-                return Ok(new { message = "Rule chain executed successfully.", result = context.Result });
+                return Ok(new { message = "Rule chain executed successfully, waiting for data.", result = context.Result });
             }
             catch (Exception ex)
             {

@@ -3,95 +3,58 @@ using Microsoft.EntityFrameworkCore;
 using RulesEngine8.Models;
 using RulesEngine8.Services;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System.Security.Cryptography;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 
 namespace RulesEngine8.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class SensorController : ControllerBase
     {
         private readonly RulesEngineDBContext _context;
-        private readonly IEmailService _emailService;
-        public SensorController(RulesEngineDBContext context, IEmailService emailService)
+        private readonly IRuleEngine _ruleEngine;
+
+        public SensorController(RulesEngineDBContext context, IRuleEngine ruleEngine)
         {
             _context = context;
-            _emailService = emailService;
-
+            _ruleEngine = ruleEngine;
         }
 
-        // POST api/<ConfigController>
         [HttpPost("districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
         public async Task<IActionResult> Post(
-            [FromQuery, Required] 
-            string hostname,
             string district,
             string assetType,
             string assetKey,
             string sensorKey,
             string sensorType,
-            [FromBody] SensorModel sensor)
+            [FromQuery, Required] string hostname,
+            [FromBody] JsonElement sensor)
         {
-            
-            var configItem = _context.ConfigItems.FirstOrDefault(x => x.AssetID == assetKey);
-            
-            if (configItem != null)
+            // Combine route parameters and body into a single JsonObject
+            var inputData = new JsonObject
             {
-                var digitalInputs = JsonConvert.DeserializeObject<List<DI>>(configItem.DigitalInputsJson);
-                var alarm = digitalInputs.FirstOrDefault(di => di.alarmId == sensor.alarmId);
-                
-                if (alarm != null)
-                {
-                    var configJson = configItem.Config;
-                    string deviceID = configItem.DeviceID;
-                    string shortDescription = alarm.shortDescription;
-                    string longDescription = alarm.longDescription;
-                    bool sendEmailValue = alarm.sendEmail;
-                    bool invertSendEMail = alarm.Invert;
-                    bool isAlarm = alarm.IsAlarm;
-                    string recipient = configJson.email;
-                    string email = $"Hi! Alarm Triggered for device {deviceID}; asset {assetKey}! Short description: {shortDescription}, Long Description: {longDescription}";
+                ["hostname"] = hostname,
+                ["district"] = district,
+                ["assetType"] = assetType,
+                ["assetKey"] = assetKey,
+                ["sensorKey"] = sensorKey,
+                ["sensorType"] = sensorType,
+                ["sensor"] = JsonObject.Parse(sensor.GetRawText())
+            };
 
-                    if (sendEmailValue && !invertSendEMail)
-                    {
-                        var historyRecord = new HistoryTable
-                        {
-                            isAlarm = isAlarm,
-                            alarmId = sensor.alarmId,
-                            assetId = assetKey,
-                            DeviceId = hostname,
-                            emailSent = sendEmailValue,
-                            emailRecipient = recipient,
-                            emailContent = email,
-                            timestamp = DateTime.Now
-                        };
-                        _context.HistoryTables.Add(historyRecord);
-                        await _context.SaveChangesAsync();
+            // Check if there's any active rule chain listening to this endpoint
+            var context = _ruleEngine.GetActiveRuleExecutionContext(HttpContext.Request.Path.Value);
 
-                        // Send email
-                        //await _emailService.SendEmailAsync(recipient, "Alarm Triggered", email);
-                    }
-                    else
-                    {
-                        var historyRecord = new HistoryTable
-                        {
-                            emailSent = sendEmailValue,
-                            emailRecipient = null,
-                            alarmId = sensor.alarmId,
-                            assetId = assetKey,
-                            DeviceId = hostname,
-                            timestamp = DateTime.Now
-                        };
-                        _context.HistoryTables.Add(historyRecord);
-                        await _context.SaveChangesAsync();
-                    }
-                }
+            if (context != null)
+            {
+                context.InputData = inputData;
+                await _ruleEngine.ExecuteRuleChain(context.RuleChainId, context);
+                return Ok(new { message = "Rule chain executed successfully.", result = context.Result });
             }
-            return Ok(new { Hostname = hostname, District = district, AssetType = assetType, AssetKey = assetKey, SensorKey = sensorKey, SensorType = sensorType, RequestBody = sensor });
+
+            return BadRequest(new { error = "No active rule chain listening on this endpoint." });
         }
     }
 }

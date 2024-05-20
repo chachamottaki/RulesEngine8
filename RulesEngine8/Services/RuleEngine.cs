@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,11 +12,13 @@ namespace RulesEngine8.Services
     {
         private readonly RulesEngineDBContext _context;
         private readonly Dictionary<string, IRuleNodeProcessor> _nodeProcessors;
+        private readonly ConcurrentDictionary<string, RuleExecutionContext> _activeContexts;
 
         public RuleEngine(RulesEngineDBContext context, IEnumerable<IRuleNodeProcessor> processors)
         {
             _context = context;
             _nodeProcessors = processors.ToDictionary(p => p.NodeType, p => p);
+            _activeContexts = new ConcurrentDictionary<string, RuleExecutionContext>();
         }
 
         public async Task ExecuteRuleChain(int ruleChainId, RuleExecutionContext context)
@@ -27,24 +30,21 @@ namespace RulesEngine8.Services
             if (ruleChain == null)
                 throw new Exception("Rule chain not found");
 
-            // Initialize a HashSet to track processed nodes
-            var processedNodes = new HashSet<int>();
+            context.RuleChainId = ruleChainId;
 
             foreach (var node in ruleChain.Nodes)
             {
-                await ProcessNodeAsync(node, context, processedNodes);
+                await ProcessNodeAsync(node, context);
+            }
+
+            if (!string.IsNullOrEmpty(context.ListeningEndpoint))
+            {
+                _activeContexts[context.ListeningEndpoint] = context;
             }
         }
 
-        private async Task ProcessNodeAsync(RuleNode node, RuleExecutionContext context, HashSet<int> processedNodes)
+        private async Task ProcessNodeAsync(RuleNode node, RuleExecutionContext context)
         {
-            // Skip if the node has already been processed
-            if (processedNodes.Contains(node.RuleNodeId))
-                return;
-
-            // Mark the node as processed
-            processedNodes.Add(node.RuleNodeId);
-
             if (_nodeProcessors.TryGetValue(node.NodeType, out var processor))
             {
                 await processor.ProcessAsync(node, context);
@@ -54,7 +54,7 @@ namespace RulesEngine8.Services
                     var targetNode = await _context.RuleNodes.FirstOrDefaultAsync(n => n.RuleNodeId == connection.TargetNodeIndex);
                     if (targetNode != null)
                     {
-                        await ProcessNodeAsync(targetNode, context, processedNodes);
+                        await ProcessNodeAsync(targetNode, context);
                     }
                 }
             }
@@ -62,6 +62,12 @@ namespace RulesEngine8.Services
             {
                 throw new Exception($"No processor found for node type {node.NodeType}");
             }
+        }
+
+        public RuleExecutionContext GetActiveRuleExecutionContext(string endpoint)
+        {
+            _activeContexts.TryGetValue(endpoint, out var context);
+            return context;
         }
     }
 }

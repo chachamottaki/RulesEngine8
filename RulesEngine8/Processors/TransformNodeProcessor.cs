@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RulesEngine8.Models;
 using RulesEngine8.Services;
 using System.Threading.Tasks;
@@ -13,16 +14,23 @@ namespace RulesEngine8.Processors
         {
             var config = JsonConvert.DeserializeObject<TransformNodeConfig>(node.ConfigurationJson);
 
-            // Apply transformation logic based on configuration
-            context.InputData = ApplyTransformation(config, context.InputData);
+            var inputData = context.InputData;
+            if (inputData != null)
+            {
+                var transformedData = ApplyTransformation(config, inputData);
+
+                context.InputData = transformedData;
+                context.Result = transformedData;
+            }
 
             await Task.CompletedTask;
         }
 
-        private object ApplyTransformation(TransformNodeConfig config, object inputData)
+        private JObject ApplyTransformation(TransformNodeConfig config, JObject inputData)
         {
-            // Implement your transformation logic here
-            return inputData; // Return the transformed data
+            var value = inputData["value"]?.Value<int>() ?? 0;
+            inputData["value"] = value * 2;
+            return inputData;
         }
     }
 

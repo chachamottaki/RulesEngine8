@@ -16,12 +16,10 @@ namespace RulesEngine8.Services
         public RuleEngine(RulesEngineDBContext context, IEnumerable<IRuleNodeProcessor> processors)
         {
             _context = context;
-
-            // Initialize node processors
             _nodeProcessors = processors.ToDictionary(p => p.NodeType, p => p);
         }
 
-        public async Task ExecuteRuleChain(int ruleChainId, object inputData)
+        public async Task ExecuteRuleChain(int ruleChainId, RuleExecutionContext context)
         {
             var ruleChain = await _context.RuleChains
                 .Include(rc => rc.Nodes)
@@ -29,8 +27,6 @@ namespace RulesEngine8.Services
 
             if (ruleChain == null)
                 throw new Exception("Rule chain not found");
-
-            var context = new RuleExecutionContext { InputData = inputData };
 
             foreach (var node in ruleChain.Nodes)
             {
@@ -44,7 +40,6 @@ namespace RulesEngine8.Services
             {
                 await processor.ProcessAsync(node, context);
 
-                // Process connections
                 foreach (var connection in node.NodeConnections)
                 {
                     var targetNode = await _context.RuleNodes.FirstOrDefaultAsync(n => n.RuleNodeId == connection.TargetNodeIndex);

@@ -2,6 +2,6 @@
 {
     public interface IRuleEngine
     {
-        Task ExecuteRuleChain(int ruleChainId, object inputData);
+        Task ExecuteRuleChain(int ruleChainId, RuleExecutionContext context);
     }
 }

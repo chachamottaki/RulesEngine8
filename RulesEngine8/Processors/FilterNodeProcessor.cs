@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RulesEngine8.Models;
 using RulesEngine8.Services;
+using System;
 using System.Threading.Tasks;
 
 namespace RulesEngine8.Processors
@@ -13,20 +15,31 @@ namespace RulesEngine8.Processors
         {
             var config = JsonConvert.DeserializeObject<FilterNodeConfig>(node.ConfigurationJson);
 
-            // Apply filter logic based on configuration
-            if (!EvaluateFilter(config, context.InputData))
+            var inputData = context.InputData;
+            if (inputData != null)
             {
-                // Stop processing if the filter condition is not met
-                throw new Exception("Filter condition not met");
+                if (!EvaluateFilter(config, inputData))
+                {
+                    throw new Exception("Filter condition not met");
+                }
+
+                context.Result = inputData;
             }
 
             await Task.CompletedTask;
         }
 
-        private bool EvaluateFilter(FilterNodeConfig config, object inputData)
+        public bool EvaluateFilter(FilterNodeConfig config, JObject inputData)
         {
-            // Implement your filter evaluation logic here
-            return true; // Return true if the condition is met, otherwise false
+            System.Diagnostics.Debug.WriteLine($"inputData fr fr: {inputData}");
+            var value = inputData["value"]?.Value<int>() ?? 0;
+            System.Diagnostics.Debug.WriteLine($"Evaluating filter: inputData['value'] = {value}, Condition: {config.FilterCondition}");
+
+            // Replace this line with actual condition evaluation logic if needed
+            bool result = value > 10;
+            Console.WriteLine();
+            System.Diagnostics.Debug.WriteLine($"Filter result: {result}");
+            return result;
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using RulesEngine8.Models;
 using RulesEngine8.Services;
 using System.Collections.Generic;
@@ -93,14 +94,17 @@ namespace RulesEngine8.Controllers
             return ruleNode;
         }
 
-
         [HttpPost("{id}/execute")]
         public async Task<IActionResult> ExecuteRuleChain(int id, [FromBody] object inputData)
         {
             try
             {
-                await _ruleEngine.ExecuteRuleChain(id, inputData);
-                return Ok(new { message = "Rule chain executed successfully." });
+                return Ok(new { inputData});
+                //var context = new RuleExecutionContext { InputData = inputData, Result = inputData };
+                //return Ok(new { context });
+                //await _ruleEngine.ExecuteRuleChain(id, context);
+
+                //return Ok(new { message = "Rule chain executed successfully.", result = context.Result, input = inputData });
             }
             catch (Exception ex)
             {

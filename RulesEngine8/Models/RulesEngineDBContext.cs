@@ -40,17 +40,6 @@ namespace RulesEngine8.Models
 
             modelBuilder.Ignore<NodeConnection>();
 
-
-
-            //modelBuilder.Entity<RuleChain>()
-            //.Property(rc => rc.NodesJson)
-            //.HasConversion(
-            // v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
-            //v => JsonSerializer.Deserialize<string>(v, (JsonSerializerOptions)null))
-            //.HasColumnType("json");
-
-            //modelBuilder.Ignore<NodeConnection>(); // Ignore NodeConnection entity
-            //modelBuilder.Ignore<RuleNode>(); // Ignore NodeConnection entity
         }
     }
 }

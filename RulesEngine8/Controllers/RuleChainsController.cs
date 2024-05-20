@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RulesEngine8.Models;
+using RulesEngine8.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,10 +12,12 @@ namespace RulesEngine8.Controllers
     public class RuleChainsController : ControllerBase
     {
         private readonly RulesEngineDBContext _context;
+        private readonly IRuleEngine _ruleEngine;
 
-        public RuleChainsController(RulesEngineDBContext context)
+        public RuleChainsController(RulesEngineDBContext context, IRuleEngine ruleEngine)
         {
             _context = context;
+            _ruleEngine = ruleEngine;
         }
 
         [HttpPost]
@@ -66,6 +69,43 @@ namespace RulesEngine8.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost("{ruleChainId}/nodes")]
+        public async Task<ActionResult<RuleNode>> PostRuleNode(int ruleChainId, RuleNode ruleNode)
+        {
+            ruleNode.RuleChainID = ruleChainId;
+            _context.RuleNodes.Add(ruleNode);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetRuleNode), new { id = ruleNode.RuleNodeId }, ruleNode);
+        }
+
+        [HttpGet("{ruleChainId}/nodes/{nodeId}")]
+        public async Task<ActionResult<RuleNode>> GetRuleNode(int ruleChainId, int nodeId)
+        {
+            var ruleNode = await _context.RuleNodes
+                .FirstOrDefaultAsync(rn => rn.RuleNodeId == nodeId && rn.RuleChainID == ruleChainId);
+
+            if (ruleNode == null)
+                return NotFound();
+
+            return ruleNode;
+        }
+
+
+        [HttpPost("{id}/execute")]
+        public async Task<IActionResult> ExecuteRuleChain(int id, [FromBody] object inputData)
+        {
+            try
+            {
+                await _ruleEngine.ExecuteRuleChain(id, inputData);
+                return Ok(new { message = "Rule chain executed successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }

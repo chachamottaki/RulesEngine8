@@ -10,7 +10,6 @@ namespace RulesEngine8.Models
         public string? Name { get; set; }
         public string? Description { get; set; }
         
-        [NotMapped]
         public List<RuleNode> Nodes { get; set; } = new List<RuleNode>();
         
         public string NodesJson
@@ -20,3 +19,4 @@ namespace RulesEngine8.Models
         }
     }
 }
+ 

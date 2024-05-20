@@ -41,6 +41,35 @@ namespace RulesEngine8.Controllers
 
             return CreatedAtAction(nameof(GetRuleChain), new { id = ruleChain.RuleChainId }, ruleChain);
         }
+        [HttpPut("{id}/activate")]
+        public async Task<IActionResult> ActivateRuleChain(int id)
+        {
+            var ruleChain = await _context.RuleChains.FindAsync(id);
+            if (ruleChain == null)
+            {
+                return NotFound();
+            }
+
+            ruleChain.IsActive = true;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}/deactivate")]
+        public async Task<IActionResult> DeactivateRuleChain(int id)
+        {
+            var ruleChain = await _context.RuleChains.FindAsync(id);
+            if (ruleChain == null)
+            {
+                return NotFound();
+            }
+
+            ruleChain.IsActive = false;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<RuleChain>> GetRuleChain(int id)

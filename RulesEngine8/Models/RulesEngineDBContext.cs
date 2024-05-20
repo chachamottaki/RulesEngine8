@@ -29,6 +29,7 @@ namespace RulesEngine8.Models
             modelBuilder.Entity<RuleChain>()
                 .Property(rc => rc.NodesJson)
                 .HasColumnType("nvarchar(max)");
+            modelBuilder.Entity<RuleChain>().Property(rc => rc.IsActive).HasDefaultValue(false);
 
             modelBuilder.Entity<RuleNode>()
                 .HasOne<RuleChain>()

@@ -9,6 +9,7 @@ namespace RulesEngine8.Models
         public int RuleChainId { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }
+        public bool IsActive { get; set; }
 
         public List<RuleNode> Nodes { get; set; } = new List<RuleNode>();
 

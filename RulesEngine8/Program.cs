@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using RulesEngine8.Models;
+using RulesEngine8.Processors;
 using RulesEngine8.Services;
 using System;
 
@@ -17,6 +18,10 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("ConfigDBConnecti
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ConfigFileParsingService>();
+builder.Services.AddScoped<IRuleEngine, RuleEngine>();
+builder.Services.AddScoped<IRuleNodeProcessor, FilterNodeProcessor>();
+builder.Services.AddScoped<IRuleNodeProcessor, TransformNodeProcessor>();
+builder.Services.AddScoped<IRuleNodeProcessor, FetchNodeProcessor>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -1,0 +1,63 @@
+﻿using Microsoft.EntityFrameworkCore;
+using RulesEngine8.Models;
+using RulesEngine8.Processors;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace RulesEngine8.Services
+{
+    public class RuleEngine : IRuleEngine
+    {
+        private readonly RulesEngineDBContext _context;
+        private readonly Dictionary<string, IRuleNodeProcessor> _nodeProcessors;
+
+        public RuleEngine(RulesEngineDBContext context, IEnumerable<IRuleNodeProcessor> processors)
+        {
+            _context = context;
+
+            // Initialize node processors
+            _nodeProcessors = processors.ToDictionary(p => p.NodeType, p => p);
+        }
+
+        public async Task ExecuteRuleChain(int ruleChainId, object inputData)
+        {
+            var ruleChain = await _context.RuleChains
+                .Include(rc => rc.Nodes)
+                .FirstOrDefaultAsync(rc => rc.RuleChainId == ruleChainId);
+
+            if (ruleChain == null)
+                throw new Exception("Rule chain not found");
+
+            var context = new RuleExecutionContext { InputData = inputData };
+
+            foreach (var node in ruleChain.Nodes)
+            {
+                await ProcessNodeAsync(node, context);
+            }
+        }
+
+        private async Task ProcessNodeAsync(RuleNode node, RuleExecutionContext context)
+        {
+            if (_nodeProcessors.TryGetValue(node.NodeType, out var processor))
+            {
+                await processor.ProcessAsync(node, context);
+
+                // Process connections
+                foreach (var connection in node.NodeConnections)
+                {
+                    var targetNode = await _context.RuleNodes.FirstOrDefaultAsync(n => n.RuleNodeId == connection.TargetNodeIndex);
+                    if (targetNode != null)
+                    {
+                        await ProcessNodeAsync(targetNode, context);
+                    }
+                }
+            }
+            else
+            {
+                throw new Exception($"No processor found for node type {node.NodeType}");
+            }
+        }
+    }
+}

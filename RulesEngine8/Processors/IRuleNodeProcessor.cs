@@ -1,8 +1,7 @@
-﻿using RulesEngine8.Models;
-using RulesEngine8.Services;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using RulesEngine8.Models;
 
-namespace RulesEngine8.Processors
+namespace RulesEngine8.Services
 {
     public interface IRuleNodeProcessor
     {

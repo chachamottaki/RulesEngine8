@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using RulesEngine8.Models;
 using RulesEngine8.Services;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace RulesEngine8.Controllers
@@ -29,7 +30,6 @@ namespace RulesEngine8.Controllers
                 return BadRequest(new { error = "Nodes field is required but is null." });
             }
 
-            // NodesJson is automatically set by the RuleChain model
             _context.RuleChains.Add(ruleChain);
             await _context.SaveChangesAsync();
 
@@ -46,15 +46,13 @@ namespace RulesEngine8.Controllers
                 return NotFound();
             }
 
-            // Nodes are automatically deserialized by the RuleChain model
             return ruleChain;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RuleChain>>> GetRuleChains()
         {
-            var ruleChains = await _context.RuleChains.ToListAsync();
-            return ruleChains;
+            return await _context.RuleChains.ToListAsync();
         }
 
         [HttpDelete("{id}")]
@@ -95,16 +93,21 @@ namespace RulesEngine8.Controllers
         }
 
         [HttpPost("{id}/execute")]
-        public async Task<IActionResult> ExecuteRuleChain(int id, [FromBody] object inputData)
+        public async Task<IActionResult> ExecuteRuleChain(int id, [FromBody] JsonElement inputData)
         {
             try
             {
-                return Ok(new { inputData});
-                //var context = new RuleExecutionContext { InputData = inputData, Result = inputData };
-                //return Ok(new { context });
-                //await _ruleEngine.ExecuteRuleChain(id, context);
+                // Convert JsonElement to JsonObject for easier manipulation
+                var inputDataObject = JsonObject.Create(inputData);
+                var context = new RuleExecutionContext { InputData = inputDataObject, Result = new JsonObject() };
 
-                //return Ok(new { message = "Rule chain executed successfully.", result = context.Result, input = inputData });
+                // Debugging: Print the received input data
+                System.Diagnostics.Debug.WriteLine($"Received inputData: {inputDataObject}");
+
+                await _ruleEngine.ExecuteRuleChain(id, context);
+
+                // Return the result in the response
+                return Ok(new { message = "Rule chain executed successfully.", result = context.Result });
             }
             catch (Exception ex)
             {

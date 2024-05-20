@@ -1,4 +1,6 @@
-﻿namespace RulesEngine8.Services
+﻿using System.Threading.Tasks;
+
+namespace RulesEngine8.Services
 {
     public interface IRuleEngine
     {

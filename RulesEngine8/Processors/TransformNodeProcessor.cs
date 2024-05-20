@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 using RulesEngine8.Models;
 using RulesEngine8.Services;
-using System.Threading.Tasks;
 
 namespace RulesEngine8.Processors
 {
@@ -12,7 +12,7 @@ namespace RulesEngine8.Processors
 
         public async Task ProcessAsync(RuleNode node, RuleExecutionContext context)
         {
-            var config = JsonConvert.DeserializeObject<TransformNodeConfig>(node.ConfigurationJson);
+            var config = JsonSerializer.Deserialize<TransformNodeConfig>(node.ConfigurationJson);
 
             var inputData = context.InputData;
             if (inputData != null)
@@ -26,9 +26,9 @@ namespace RulesEngine8.Processors
             await Task.CompletedTask;
         }
 
-        private JObject ApplyTransformation(TransformNodeConfig config, JObject inputData)
+        private JsonObject ApplyTransformation(TransformNodeConfig config, JsonObject inputData)
         {
-            var value = inputData["value"]?.Value<int>() ?? 0;
+            var value = inputData["value"]?.GetValue<int>() ?? 0;
             inputData["value"] = value * 2;
             return inputData;
         }

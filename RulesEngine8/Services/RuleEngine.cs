@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using RulesEngine8.Models;
-using RulesEngine8.Processors;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using RulesEngine8.Models;
 
 namespace RulesEngine8.Services
 {
@@ -28,14 +27,24 @@ namespace RulesEngine8.Services
             if (ruleChain == null)
                 throw new Exception("Rule chain not found");
 
+            // Initialize a HashSet to track processed nodes
+            var processedNodes = new HashSet<int>();
+
             foreach (var node in ruleChain.Nodes)
             {
-                await ProcessNodeAsync(node, context);
+                await ProcessNodeAsync(node, context, processedNodes);
             }
         }
 
-        private async Task ProcessNodeAsync(RuleNode node, RuleExecutionContext context)
+        private async Task ProcessNodeAsync(RuleNode node, RuleExecutionContext context, HashSet<int> processedNodes)
         {
+            // Skip if the node has already been processed
+            if (processedNodes.Contains(node.RuleNodeId))
+                return;
+
+            // Mark the node as processed
+            processedNodes.Add(node.RuleNodeId);
+
             if (_nodeProcessors.TryGetValue(node.NodeType, out var processor))
             {
                 await processor.ProcessAsync(node, context);
@@ -45,7 +54,7 @@ namespace RulesEngine8.Services
                     var targetNode = await _context.RuleNodes.FirstOrDefaultAsync(n => n.RuleNodeId == connection.TargetNodeIndex);
                     if (targetNode != null)
                     {
-                        await ProcessNodeAsync(targetNode, context);
+                        await ProcessNodeAsync(targetNode, context, processedNodes);
                     }
                 }
             }

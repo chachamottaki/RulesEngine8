@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 using RulesEngine8.Models;
 using RulesEngine8.Services;
-using System;
-using System.Threading.Tasks;
 
 namespace RulesEngine8.Processors
 {
@@ -13,7 +13,7 @@ namespace RulesEngine8.Processors
 
         public async Task ProcessAsync(RuleNode node, RuleExecutionContext context)
         {
-            var config = JsonConvert.DeserializeObject<FilterNodeConfig>(node.ConfigurationJson);
+            var config = JsonSerializer.Deserialize<FilterNodeConfig>(node.ConfigurationJson);
 
             var inputData = context.InputData;
             if (inputData != null)
@@ -29,16 +29,14 @@ namespace RulesEngine8.Processors
             await Task.CompletedTask;
         }
 
-        public bool EvaluateFilter(FilterNodeConfig config, JObject inputData)
+        public bool EvaluateFilter(FilterNodeConfig config, JsonObject inputData)
         {
-            System.Diagnostics.Debug.WriteLine($"inputData fr fr: {inputData}");
-            var value = inputData["value"]?.Value<int>() ?? 0;
-            System.Diagnostics.Debug.WriteLine($"Evaluating filter: inputData['value'] = {value}, Condition: {config.FilterCondition}");
+            var value = inputData["value"]?.GetValue<int>() ?? 0;
+            Console.WriteLine($"Evaluating filter: inputData['value'] = {value}, Condition: {config.FilterCondition}");
 
             // Replace this line with actual condition evaluation logic if needed
             bool result = value > 10;
-            Console.WriteLine();
-            System.Diagnostics.Debug.WriteLine($"Filter result: {result}");
+            Console.WriteLine($"Filter result: {result}");
             return result;
         }
     }

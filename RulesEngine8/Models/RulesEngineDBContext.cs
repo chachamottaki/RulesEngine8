@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace RulesEngine8.Models
 {
@@ -39,7 +37,6 @@ namespace RulesEngine8.Models
                 .IsRequired();
 
             modelBuilder.Ignore<NodeConnection>();
-
         }
     }
 }

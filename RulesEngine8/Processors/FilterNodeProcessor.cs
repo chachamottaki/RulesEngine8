@@ -16,6 +16,7 @@ namespace RulesEngine8.Processors
             var config = JsonSerializer.Deserialize<FilterNodeConfig>(node.ConfigurationJson);
 
             var inputData = context.InputData;
+            System.Diagnostics.Debug.WriteLine($"ARIANAAAAA: {node.RuleChainID},{node.NodeType}");
             if (inputData != null)
             {
                 if (!EvaluateFilter(config, inputData))
@@ -31,13 +32,13 @@ namespace RulesEngine8.Processors
 
         public bool EvaluateFilter(FilterNodeConfig config, JsonObject inputData)
         {
-            var value = inputData["value"]?.GetValue<int>() ?? 0;
-            Console.WriteLine($"Evaluating filter: inputData['value'] = {value}, Condition: {config.FilterCondition}");
+            //var value = inputData["value"]?.GetValue<int>() ?? 0;
+            //Console.WriteLine($"Evaluating filter: inputData['value'] = {value}, Condition: {config.FilterCondition}");
 
-            // Replace this line with actual condition evaluation logic if needed
-            bool result = value > 10;
-            Console.WriteLine($"Filter result: {result}");
-            return result;
+            //// Replace this line with actual condition evaluation logic if needed
+            //bool result = value > 10;
+            //Console.WriteLine($"Filter result: {result}");
+            return false;
         }
     }
 

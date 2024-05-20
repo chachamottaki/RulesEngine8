@@ -9,6 +9,5 @@ namespace RulesEngine8.Services
         public JsonObject InputData { get; set; }
         public Dictionary<string, object> State { get; set; } = new Dictionary<string, object>();
         public JsonObject Result { get; set; }
-        public string ListeningEndpoint { get; set; }
     }
 }

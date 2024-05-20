@@ -42,7 +42,8 @@ public class SensorController : ControllerBase
             ["sensor"] = JsonObject.Parse(sensor.GetRawText())
         };
 
-        var endpoint = HttpContext.Request.Path.Value;
+        var endpoint = "/api/Sensor/districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}";
+        
 
         // Find active rule chains with a listening node matching the endpoint
         var activeRuleChains = await _context.RuleChains
@@ -52,6 +53,9 @@ public class SensorController : ControllerBase
 
         foreach (var ruleChain in activeRuleChains)
         {
+            //System.Diagnostics.Debug.WriteLine($"rulechainID: {ruleChain.RuleChainId}"); //correct ruleChainId! 
+            //System.Diagnostics.Debug.WriteLine(endpoint); // ok
+            //System.Diagnostics.Debug.WriteLine(ruleChain.Nodes.FirstOrDefault(n => n.NodeType == "Listening"));
             var listeningNode = ruleChain.Nodes
                 .FirstOrDefault(n => n.NodeType == "Listening" &&
                                      JsonSerializer.Deserialize<ListeningNodeConfig>(n.ConfigurationJson).Endpoint == endpoint);

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using RulesEngine8.Models;
 
@@ -12,13 +13,11 @@ namespace RulesEngine8.Services
     {
         private readonly RulesEngineDBContext _context;
         private readonly Dictionary<string, IRuleNodeProcessor> _nodeProcessors;
-        private readonly ConcurrentDictionary<string, RuleExecutionContext> _activeContexts;
 
         public RuleEngine(RulesEngineDBContext context, IEnumerable<IRuleNodeProcessor> processors)
         {
             _context = context;
             _nodeProcessors = processors.ToDictionary(p => p.NodeType, p => p);
-            _activeContexts = new ConcurrentDictionary<string, RuleExecutionContext>();
         }
 
         public async Task ExecuteRuleChain(int ruleChainId, RuleExecutionContext context)
@@ -34,12 +33,9 @@ namespace RulesEngine8.Services
 
             foreach (var node in ruleChain.Nodes)
             {
-                await ProcessNodeAsync(node, context);
-            }
+                System.Diagnostics.Debug.WriteLine(node.NodeType);
 
-            if (!string.IsNullOrEmpty(context.ListeningEndpoint))
-            {
-                _activeContexts[context.ListeningEndpoint] = context;
+                await ProcessNodeAsync(node, context);
             }
         }
 
@@ -62,12 +58,6 @@ namespace RulesEngine8.Services
             {
                 throw new Exception($"No processor found for node type {node.NodeType}");
             }
-        }
-
-        public RuleExecutionContext GetActiveRuleExecutionContext(string endpoint)
-        {
-            _activeContexts.TryGetValue(endpoint, out var context);
-            return context;
         }
     }
 }

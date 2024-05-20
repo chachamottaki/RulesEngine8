@@ -22,6 +22,11 @@ builder.Services.AddScoped<IRuleEngine, RuleEngine>();
 builder.Services.AddScoped<IRuleNodeProcessor, FilterNodeProcessor>();
 builder.Services.AddScoped<IRuleNodeProcessor, TransformNodeProcessor>();
 builder.Services.AddScoped<IRuleNodeProcessor, FetchNodeProcessor>();
+builder.Services.AddScoped<IRuleNodeProcessor, DataRetrievalNodeProcessor>();
+builder.Services.AddScoped<IRuleNodeProcessor, ConditionCheckNodeProcessor>();
+builder.Services.AddScoped<IRuleNodeProcessor, EmailCreationNodeProcessor>();
+builder.Services.AddScoped<IRuleNodeProcessor, EmailSendingNodeProcessor>();
+builder.Services.AddScoped<IRuleNodeProcessor, ListeningNodeProcessor>();
 
 
 builder.Services.AddControllers();

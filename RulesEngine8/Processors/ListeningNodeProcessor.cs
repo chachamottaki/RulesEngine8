@@ -13,11 +13,8 @@ namespace RulesEngine8.Processors
         {
             var config = JsonSerializer.Deserialize<ListeningNodeConfig>(node.ConfigurationJson);
 
-            // Store the endpoint in the context
-            context.ListeningEndpoint = config.Endpoint;
-            System.Diagnostics.Debug.WriteLine(context.ListeningEndpoint);
+            // give inputData to next node, or any processing needed
 
-            // The listening node will wait for data from the SensorController endpoint
             await Task.CompletedTask;
         }
     }

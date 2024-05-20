@@ -28,8 +28,15 @@ namespace RulesEngine8.Processors
 
         private JsonObject ApplyTransformation(TransformNodeConfig config, JsonObject inputData)
         {
-            var value = inputData["value"]?.GetValue<int>() ?? 0;
-            inputData["value"] = value * 2;
+            inputData["hostname"] = 6 ;
+            inputData["district"] = 4;
+            inputData["assetType"] = 34;
+            inputData["assetKey"] = 33;
+            inputData["sensorKey"] = 33;
+            inputData["sensorType"] = 33;
+            inputData["hostname"] = 33;
+            inputData["sensor"] = 33;
+            System.Diagnostics.Debug.WriteLine($"INPUTDATAAA: {inputData}");
             return inputData;
         }
     }

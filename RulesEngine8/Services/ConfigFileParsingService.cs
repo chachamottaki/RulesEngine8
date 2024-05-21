@@ -32,11 +32,11 @@ public class ConfigFileParsingService
                         break;*/
                     case string s when s.Contains("PROJECTSETTINGS.typMailSettings.sMailFrom"):
                         tempRelements.AddRange(line.Split("'"));
-                        settings["recipients"] = tempRelements[1];
+                        settings["sender"] = tempRelements[1];
                         break;
                     case string s when s.Contains("PROJECTSETTINGS.typMailSettings.asReceipients"):
                         tempSelements.AddRange(line.Split("'"));
-                        settings["sender"] = tempSelements[1];
+                        settings["recipients"] = tempSelements[1];
                         break;
                     default:
                         break;

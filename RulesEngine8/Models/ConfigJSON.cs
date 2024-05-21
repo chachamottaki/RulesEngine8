@@ -7,5 +7,6 @@ namespace RulesEngine8.Models
     public class ConfigJson
     {
         public string? email { get; set; }
+        public string? sender { get; set; }
     }
 }

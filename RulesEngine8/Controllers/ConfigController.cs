@@ -86,7 +86,7 @@ namespace RuleEngine8.Controllers
                         string installationKey = subDiItem["InstallationKey"];
 
                         var existingAsset = await _context.ConfigItems
-                            .Include(e => e.DigitalInputs)
+                            //.Include(e => e.DigitalInputs)
                             .FirstOrDefaultAsync(e => e.AssetID == installationKey);
                         
 
@@ -115,9 +115,15 @@ namespace RuleEngine8.Controllers
                         if (existingAsset != null)
                         {
                             existingAsset.DeviceID = deviceName;
-                            var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.alarmId == subDiItem["id"]);// Check if digital input (ex 1.1) already exists i/t list
-                            
-                            if (existingDI == null)
+                            //var existingDI = existingAsset.DigitalInputs.FirstOrDefault(di => di.alarmId == subDiItem["id"]);
+
+                            // Deserialize the DigitalInputsJson into a list of DI objects
+                            var digitalInputsList = JsonConvert.DeserializeObject<List<DI>>(existingAsset.DigitalInputsJson);
+
+                            // Check if any DI object in the list has the desired ID
+                            var existingDI = digitalInputsList.FirstOrDefault(di => di.alarmId == subDiItem["id"]);
+
+                            if (existingDI == null) // Check if digital input (ex 1.1) already exists i/t list
                             {
                                 existingAsset.DigitalInputs.Add(newDI);
                                 await _context.SaveChangesAsync();
@@ -223,6 +229,13 @@ namespace RuleEngine8.Controllers
                                     email = settings["recipients"]
                                 };
                             }
+                            else if (configItem.Config == null && settings["sender"] != null)
+                            {
+                                configItem.Config = new ConfigJson
+                                {
+                                    sender = settings["sender"]
+                                };
+                            }
                         }
                         await _context.SaveChangesAsync();
                     }
@@ -233,7 +246,8 @@ namespace RuleEngine8.Controllers
                             DeviceID = settings["DeviceID"],
                             Config = new ConfigJson
                             {
-                                email = settings["recipients"]
+                                email = settings["recipients"],
+                                sender = settings["sender"]
                             }
                         };
 

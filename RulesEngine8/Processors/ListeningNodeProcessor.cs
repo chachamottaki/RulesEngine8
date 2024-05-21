@@ -13,8 +13,6 @@ namespace RulesEngine8.Processors
         {
             var config = JsonSerializer.Deserialize<ListeningNodeConfig>(node.ConfigurationJson);
 
-            // give inputData to next node, or any processing needed
-
             await Task.CompletedTask;
         }
     }

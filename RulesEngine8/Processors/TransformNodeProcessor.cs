@@ -36,11 +36,10 @@ namespace RulesEngine8.Processors
             inputData["sensorType"] = 33;
             inputData["hostname"] = 33;
             inputData["sensor"] = 33;
-            System.Diagnostics.Debug.WriteLine($"INPUTDATAAA: {inputData}");
+            
             return inputData;
         }
     }
-
     public class TransformNodeConfig
     {
         public string TransformationLogic { get; set; }

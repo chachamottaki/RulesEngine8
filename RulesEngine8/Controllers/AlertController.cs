@@ -76,7 +76,7 @@ namespace RulesEngine8.Controllers
                     string recipient = configJson.email;
                     string email = $"Hi! Alarm Triggered for device {deviceID}; asset {assetKey}! Short description: {shortDescription}, Long Description: {longDescription}";
 
-                    if (sendEmailValue && !invertSendEMail)
+                    if ((sendEmailValue && !invertSendEMail) || (!sendEmailValue && invertSendEMail))
                     {
                         var historyRecord = new HistoryTable
                         {

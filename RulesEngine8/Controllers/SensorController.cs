@@ -4,8 +4,9 @@ using RulesEngine8.Processors;
 using RulesEngine8.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Nodes;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using STJ = System.Text.Json;
+using NewtonsoftJson = Newtonsoft.Json;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -28,9 +29,8 @@ public class SensorController : ControllerBase
         string sensorKey,
         string sensorType,
         [FromQuery, Required] string hostname,
-        [FromBody] JsonElement sensor)
+        [FromBody] SensorModel sensor)
     {
-        // Combine route parameters and body into a single JsonObject
         var inputData = new JsonObject
         {
             ["hostname"] = hostname,
@@ -39,35 +39,45 @@ public class SensorController : ControllerBase
             ["assetKey"] = assetKey,
             ["sensorKey"] = sensorKey,
             ["sensorType"] = sensorType,
-            ["sensor"] = JsonObject.Parse(sensor.GetRawText())
+            ["alarmId"] = sensor.alarmId
         };
 
         var endpoint = "/api/Sensor/districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}";
-        
 
-        // Find active rule chains with a listening node matching the endpoint
         var activeRuleChains = await _context.RuleChains
             .Include(rc => rc.Nodes)
             .Where(rc => rc.IsActive)
             .ToListAsync();
-
+        
         foreach (var ruleChain in activeRuleChains)
         {
-            //System.Diagnostics.Debug.WriteLine($"rulechainID: {ruleChain.RuleChainId}"); //correct ruleChainId! 
-            //System.Diagnostics.Debug.WriteLine(endpoint); // ok
-            //System.Diagnostics.Debug.WriteLine(ruleChain.Nodes.FirstOrDefault(n => n.NodeType == "Listening"));
             var listeningNode = ruleChain.Nodes
                 .FirstOrDefault(n => n.NodeType == "Listening" &&
-                                     JsonSerializer.Deserialize<ListeningNodeConfig>(n.ConfigurationJson).Endpoint == endpoint);
+                                     STJ.JsonSerializer.Deserialize<ListeningNodeConfig>(n.ConfigurationJson).Endpoint == endpoint);
 
             if (listeningNode != null)
             {
+                var configItem = _context.ConfigItems.FirstOrDefault(x => x.AssetID == assetKey);
                 var context = new RuleExecutionContext { InputData = inputData, Result = new JsonObject() };
+                
+
+                if (configItem != null)
+                {
+                    context.State["ConfigItem"] = configItem;
+                    context.State["EmailRecipient"] = configItem.Config.email;
+                    var digitalInputs = NewtonsoftJson.JsonConvert.DeserializeObject<List<DI>>(configItem.DigitalInputsJson);
+                    var alarm = digitalInputs.FirstOrDefault(di => di.alarmId == sensor.alarmId);
+                    context.State["Alarm"] = alarm;
+
+                    if (alarm != null)
+                    {
+                        context.State["sendEmail"] = alarm.sendEmail;   
+                    }
+                }
                 await _ruleEngine.ExecuteRuleChain(ruleChain.RuleChainId, context);
                 return Ok(new { message = "Rule chain executed successfully.", result = context.Result });
             }
         }
-
         return BadRequest(new { error = "No active rule chain listening on this endpoint." });
     }
 }

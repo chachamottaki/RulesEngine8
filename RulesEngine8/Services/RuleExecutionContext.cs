@@ -9,5 +9,6 @@ namespace RulesEngine8.Services
         public JsonObject InputData { get; set; }
         public Dictionary<string, object> State { get; set; } = new Dictionary<string, object>();
         public JsonObject Result { get; set; }
+        public HashSet<int> ProcessedNodes { get; set; } = new HashSet<int>();
     }
 }

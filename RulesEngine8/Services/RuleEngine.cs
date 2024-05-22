@@ -34,13 +34,22 @@ namespace RulesEngine8.Services
             foreach (var node in ruleChain.Nodes)
             {
                 System.Diagnostics.Debug.WriteLine(node.NodeType);
-
                 await ProcessNodeAsync(node, context);
             }
         }
 
         private async Task ProcessNodeAsync(RuleNode node, RuleExecutionContext context)
         {
+            // Check if the node has already been processed in this context
+            if (context.ProcessedNodes.Contains(node.RuleNodeId))
+            {
+                System.Diagnostics.Debug.WriteLine($"Skipping already processed node {node.RuleNodeId}");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"Processing node: {node.NodeType} with ID: {node.RuleNodeId}");
+            context.ProcessedNodes.Add(node.RuleNodeId); // Mark this node as processed
+
             if (_nodeProcessors.TryGetValue(node.NodeType, out var processor))
             {
                 await processor.ProcessAsync(node, context);
@@ -50,6 +59,7 @@ namespace RulesEngine8.Services
                     var targetNode = await _context.RuleNodes.FirstOrDefaultAsync(n => n.RuleNodeId == connection.TargetNodeIndex);
                     if (targetNode != null)
                     {
+                        System.Diagnostics.Debug.WriteLine($"Moving from node {node.RuleNodeId} to node {targetNode.RuleNodeId}");
                         await ProcessNodeAsync(targetNode, context);
                     }
                 }
@@ -60,4 +70,5 @@ namespace RulesEngine8.Services
             }
         }
     }
+
 }

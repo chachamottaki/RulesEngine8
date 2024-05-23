@@ -68,10 +68,12 @@ public class SensorController : ControllerBase
                     var digitalInputs = NewtonsoftJson.JsonConvert.DeserializeObject<List<DI>>(configItem.DigitalInputsJson);
                     var alarm = digitalInputs.FirstOrDefault(di => di.alarmId == sensor.alarmId);
                     context.State["Alarm"] = alarm;
+                    context.State["AlarmId"] = sensor.alarmId;
 
                     if (alarm != null)
                     {
-                        context.State["sendEmail"] = alarm.sendEmail;   
+                        context.State["sendEmail"] = alarm.sendEmail;
+                        context.State["invertSendEmail"] = alarm.Invert;
                     }
                 }
                 await _ruleEngine.ExecuteRuleChain(ruleChain.RuleChainId, context);

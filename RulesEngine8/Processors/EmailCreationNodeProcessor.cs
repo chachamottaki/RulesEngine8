@@ -21,7 +21,7 @@ namespace RulesEngine8.Processors
                 var alarm = (DI)context.State["Alarm"];
 
                 string deviceID = configItem.DeviceID;
-                string assetKey = context.InputData["assetKey"].GetValue<string>();
+                string assetKey = alarm.InstallationKey;
                 string shortDescription = alarm.shortDescription;
                 string longDescription = alarm.longDescription;
                 string recipient = configItem.Config.email.ToString();

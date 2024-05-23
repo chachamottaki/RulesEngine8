@@ -74,7 +74,7 @@ namespace RulesEngine8.Controllers
                     bool invertSendEMail = alarm.Invert;
                     bool isAlarm = alarm.IsAlarm;
                     string recipient = configJson.email;
-                    string email = $"Hi! Alarm Triggered for device {deviceID}; asset {assetKey}! Short description: {shortDescription}, Long Description: {longDescription}";
+                    string email = $"Hi! Alarm Triggered for device {deviceID}; asset {assetKey}! Short description: {shortDescription}, Long Description: {longDescription}, is it an alarm?:{isAlarm}";
 
                     if ((sendEmailValue && !invertSendEMail) || (!sendEmailValue && invertSendEMail))
                     {

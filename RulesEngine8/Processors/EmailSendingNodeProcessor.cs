@@ -9,7 +9,7 @@ namespace RulesEngine8.Processors
 {
     public class EmailSendingNodeProcessor : IRuleNodeProcessor
     {
-        private readonly IEmailService _emailService;
+        //private readonly IEmailService _emailService;
         private readonly RulesEngineDBContext _context;
 
         public EmailSendingNodeProcessor(IEmailService emailService, RulesEngineDBContext context)
@@ -53,7 +53,6 @@ namespace RulesEngine8.Processors
                 }
                 else
                 {
-                    // Save history record
                     var historyRecord = new HistoryTable
                     {
                         isAlarm = alarm.IsAlarm,

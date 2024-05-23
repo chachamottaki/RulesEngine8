@@ -36,6 +36,8 @@ namespace RulesEngine8.Services
                 System.Diagnostics.Debug.WriteLine(node.NodeType);
                 await ProcessNodeAsync(node, context);
             }
+            // Reset processed nodes after completing the rule chain
+            context.ResetProcessedNodes();
         }
 
         private async Task ProcessNodeAsync(RuleNode node, RuleExecutionContext context)
@@ -44,6 +46,13 @@ namespace RulesEngine8.Services
             if (context.ProcessedNodes.Contains(node.RuleNodeId))
             {
                 System.Diagnostics.Debug.WriteLine($"Skipping already processed node {node.RuleNodeId}");
+                return;
+            }
+
+            // Check if the execution should be stopped
+            if (context.State.ContainsKey("StopExecution") && (bool)context.State["StopExecution"])
+            {
+                System.Diagnostics.Debug.WriteLine("Execution stopped by condition check.");
                 return;
             }
 

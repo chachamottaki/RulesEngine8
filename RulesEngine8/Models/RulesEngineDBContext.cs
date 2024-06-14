@@ -7,12 +7,9 @@ namespace RulesEngine8.Models
         public RulesEngineDBContext(DbContextOptions<RulesEngineDBContext> options) : base(options) { }
         public DbSet<ConfigItem> ConfigItems { get; set; }
         public DbSet<DI> DigitalInputs { get; set; }
-        public DbSet<SensorModel> Sensors { get; set; }
         public DbSet<HistoryTable> HistoryTables { get; set; }
-
         public DbSet<RuleChain> RuleChains { get; set; }
         public DbSet<RuleNode> RuleNodes { get; set; }
-        public DbSet<NodeConnection> NodeConnections { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,11 +22,13 @@ namespace RulesEngine8.Models
                 .HasForeignKey(di => di.ConfigItemID)
                 .IsRequired();
 
-            // Configure NodesJson as a nvarchar(max) for SQL Server
+            // Configure NodesJson as text for PostgreSQL
             modelBuilder.Entity<RuleChain>()
                 .Property(rc => rc.NodesJson)
-                .HasColumnType("nvarchar(max)");
-            modelBuilder.Entity<RuleChain>().Property(rc => rc.IsActive).HasDefaultValue(false);
+                .HasColumnType("text");
+            modelBuilder.Entity<RuleChain>()
+                .Property(rc => rc.IsActive)
+                .HasDefaultValue(false);
 
             modelBuilder.Entity<RuleNode>()
                 .HasOne<RuleChain>()

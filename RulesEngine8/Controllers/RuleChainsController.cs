@@ -30,7 +30,6 @@ namespace RulesEngine8.Controllers
                 return BadRequest(new { error = "Nodes field is required but is null." });
             }
 
-            // Ensure ConfigurationJson is correctly serialized
             foreach (var node in ruleChain.Nodes)
             {
                 node.ConfigurationJson = JsonSerializer.Serialize(JsonSerializer.Deserialize<JsonElement>(node.ConfigurationJson));
@@ -41,6 +40,7 @@ namespace RulesEngine8.Controllers
 
             return CreatedAtAction(nameof(GetRuleChain), new { id = ruleChain.RuleChainId }, ruleChain);
         }
+
         [HttpPut("{id}/activate")]
         public async Task<IActionResult> ActivateRuleChain(int id)
         {

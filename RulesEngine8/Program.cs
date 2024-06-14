@@ -9,12 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 //SQL Server
-builder.Services.AddDbContext<RulesEngineDBContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("ConfigDBConnection")));
+/*builder.Services.AddDbContext<RulesEngineDBContext>(options =>
+options.UseSqlServer(builder.Configuration.GetConnectionString("ConfigDBConnection")));*/
 
 //postgresql
-/*builder.Services.AddDbContext<RulesEngineDBContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));*/
+builder.Services.AddDbContext<RulesEngineDBContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ConfigFileParsingService>();
@@ -22,7 +22,6 @@ builder.Services.AddScoped<IRuleEngine, RuleEngine>();
 builder.Services.AddScoped<IRuleNodeProcessor, FilterNodeProcessor>();
 builder.Services.AddScoped<IRuleNodeProcessor, TransformNodeProcessor>();
 builder.Services.AddScoped<IRuleNodeProcessor, FetchNodeProcessor>();
-builder.Services.AddScoped<IRuleNodeProcessor, DataRetrievalNodeProcessor>();
 builder.Services.AddScoped<IRuleNodeProcessor, ConditionCheckNodeProcessor>();
 builder.Services.AddScoped<IRuleNodeProcessor, EmailCreationNodeProcessor>();
 builder.Services.AddScoped<IRuleNodeProcessor, EmailSendingNodeProcessor>();

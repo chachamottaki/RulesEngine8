@@ -55,7 +55,9 @@ namespace RuleEngine8.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile([FromForm] List<IFormFile> files, [FromForm] List<string> configTypes, [FromForm] string deviceName)
+        public async Task<IActionResult> UploadFile([FromForm] List<IFormFile> files, 
+                                                    [FromForm] List<string> configTypes, 
+                                                    [FromForm] string deviceName)
         {
             if (files == null || files.Count == 0)
             {
@@ -146,7 +148,7 @@ namespace RuleEngine8.Controllers
                                 existingDI.ErrorMsg = subDiItem["ErrorMsg"];
                                 existingDI.LastTime = subDiItem["LastTime"];
 
-                                var DIline = await _context.DigitalInputs
+                                var DIline = await _context.DigitalInputs //is this linked to configitem? json in confitem shd be populated instead
                                 .FirstOrDefaultAsync(e => e.alarmId == subDiItem["id"]);
 
                                 DIline.isActive = bool.Parse(subDiItem["isActive"]);

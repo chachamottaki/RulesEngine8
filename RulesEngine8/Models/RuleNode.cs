@@ -6,6 +6,7 @@ namespace RulesEngine8.Models
     public class RuleNode
     {
         public int RuleNodeId { get; set; }
+        public string NodeUUID { get; set; }
         public string NodeType { get; set; }
         public string ConfigurationJson { get; set; }
 

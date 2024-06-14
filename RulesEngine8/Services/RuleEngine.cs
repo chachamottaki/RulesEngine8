@@ -58,14 +58,14 @@ namespace RulesEngine8.Services
 
             System.Diagnostics.Debug.WriteLine($"Processing node: {node.NodeType} with ID: {node.RuleNodeId}");
             context.ProcessedNodes.Add(node.RuleNodeId); // Mark this node as processed
-
+            
             if (_nodeProcessors.TryGetValue(node.NodeType, out var processor))
             {
                 await processor.ProcessAsync(node, context);
 
                 foreach (var connection in node.NodeConnections)
                 {
-                    var targetNode = await _context.RuleNodes.FirstOrDefaultAsync(n => n.RuleNodeId == connection.TargetNodeIndex);
+                    var targetNode = await _context.RuleNodes.FirstOrDefaultAsync(n => n.NodeUUID == connection.TargetNodeIndex);
                     if (targetNode != null)
                     {
                         System.Diagnostics.Debug.WriteLine($"Moving from node {node.RuleNodeId} to node {targetNode.RuleNodeId}");

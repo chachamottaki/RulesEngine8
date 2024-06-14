@@ -2,7 +2,6 @@
 {
     public class NodeConnection
     {
-        public int SourceNodeIndex { get; set; }
-        public int TargetNodeIndex { get; set; }
+        public string TargetNodeIndex { get; set; }
     }
 }

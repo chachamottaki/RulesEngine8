@@ -212,5 +212,11 @@ namespace RulesEngine8.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+
+        [HttpGet("logs")]
+        public async Task<ActionResult<IEnumerable<HistoryTable>>> GetLogs()
+        {
+            return await _context.HistoryTables.ToListAsync();
+        }
     }
 }

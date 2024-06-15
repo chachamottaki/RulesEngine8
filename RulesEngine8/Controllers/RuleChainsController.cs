@@ -41,8 +41,89 @@ namespace RulesEngine8.Controllers
             return CreatedAtAction(nameof(GetRuleChain), new { id = ruleChain.RuleChainId }, ruleChain);
         }
 
-        [HttpPut("{id}/activate")]
-        public async Task<IActionResult> ActivateRuleChain(int id)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateRuleChain(int id, RuleChain updatedRuleChain)
+        {
+            if (id != updatedRuleChain.RuleChainId)
+            {
+                return BadRequest();
+            }
+
+            var existingRuleChain = await _context.RuleChains
+                .FirstOrDefaultAsync(rc => rc.RuleChainId == id);
+
+            if (existingRuleChain == null)
+            {
+                return NotFound();
+            }
+
+            // Update properties of the rule chain
+            existingRuleChain.Name = updatedRuleChain.Name;
+            existingRuleChain.Description = updatedRuleChain.Description;
+
+            // Update nodes
+            foreach (var updatedNode in updatedRuleChain.Nodes)
+            {
+                var existingNode = existingRuleChain.Nodes.FirstOrDefault(n => n.NodeUUID == updatedNode.NodeUUID);
+
+                if (existingNode == null)
+                {
+                    // If node doesn't exist, add it
+                    existingRuleChain.Nodes.Add(updatedNode);
+                }
+                else
+                {
+                    // Update existing node properties
+                    existingNode.NodeType = updatedNode.NodeType;
+                    existingNode.ConfigurationJson = updatedNode.ConfigurationJson;
+                    existingNode.Left = updatedNode.Left;
+                    existingNode.Top = updatedNode.Top;
+
+                    // Update node connections
+                    existingNode.NodeConnections.Clear();
+                    foreach (var connection in updatedNode.NodeConnections)
+                    {
+                        existingNode.NodeConnections.Add(connection);
+                    }
+                }
+            }
+
+            // Remove nodes that are not in the updated list
+            foreach (var existingNode in existingRuleChain.Nodes.ToList())
+            {
+                if (!updatedRuleChain.Nodes.Any(n => n.NodeUUID == existingNode.NodeUUID))
+                {
+                    _context.RuleNodes.Remove(existingNode);
+                }
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!RuleChainExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        private bool RuleChainExists(int id)
+        {
+            return _context.RuleChains.Any(e => e.RuleChainId == id);
+        }
+
+
+        [HttpPut("{id}/toggle-active")]
+        public async Task<IActionResult> ToggleActiveRuleChain(int id)
         {
             var ruleChain = await _context.RuleChains.FindAsync(id);
             if (ruleChain == null)
@@ -50,26 +131,12 @@ namespace RulesEngine8.Controllers
                 return NotFound();
             }
 
-            ruleChain.IsActive = true;
+            ruleChain.IsActive = !ruleChain.IsActive;
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        [HttpPut("{id}/deactivate")]
-        public async Task<IActionResult> DeactivateRuleChain(int id)
-        {
-            var ruleChain = await _context.RuleChains.FindAsync(id);
-            if (ruleChain == null)
-            {
-                return NotFound();
-            }
-
-            ruleChain.IsActive = false;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<RuleChain>> GetRuleChain(int id)

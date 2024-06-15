@@ -13,5 +13,9 @@ namespace RulesEngine8.Models
         [NotMapped]
         public List<NodeConnection> NodeConnections { get; set; } = new List<NodeConnection>();
         public int RuleChainID { get; set; }
+
+        //properties for positioning on canvas
+        public int Left { get; set; }
+        public int Top { get; set; }
     }
 }

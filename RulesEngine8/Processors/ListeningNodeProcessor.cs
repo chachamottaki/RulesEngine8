@@ -19,6 +19,6 @@ namespace RulesEngine8.Processors
 
     public class ListeningNodeConfig
     {
-        public string Endpoint { get; set; }
+        public string apiEndpoint { get; set; }
     }
 }

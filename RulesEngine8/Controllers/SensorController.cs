@@ -48,18 +48,20 @@ public class SensorController : ControllerBase
             .Include(rc => rc.Nodes)
             .Where(rc => rc.IsActive)
             .ToListAsync();
-        
+
         foreach (var ruleChain in activeRuleChains)
         {
+
             var listeningNode = ruleChain.Nodes
                 .FirstOrDefault(n => n.NodeType == "Listening" &&
-                                     STJ.JsonSerializer.Deserialize<ListeningNodeConfig>(n.ConfigurationJson).Endpoint == endpoint);
+                                     STJ.JsonSerializer.Deserialize<ListeningNodeConfig>(n.ConfigurationJson).apiEndpoint == endpoint);
 
             if (listeningNode != null)
             {
+                System.Diagnostics.Debug.WriteLine("This is a listening node");
                 var configItem = _context.ConfigItems.FirstOrDefault(x => x.AssetID == assetKey);
                 var context = new RuleExecutionContext { InputData = inputData, Result = new JsonObject() };
-                
+
 
                 if (configItem != null)
                 {

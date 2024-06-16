@@ -13,7 +13,7 @@ namespace RulesEngine8.Processors
         public async Task ProcessAsync(RuleNode node, RuleExecutionContext context)
         {
             var nodeConfig = JsonNode.Parse(node.ConfigurationJson);
-            string emailTemplate = nodeConfig?["emailTemplate"]?.ToString();
+            string emailTemplate = nodeConfig?["content"]?.ToString();
 
             if (context.State.ContainsKey("ConfigItem") && context.State.ContainsKey("Alarm"))
             {
@@ -28,10 +28,23 @@ namespace RulesEngine8.Processors
                 string email = emailTemplate;
                 //add other inputs like sensortype, sensorkey, assetType, district,.. (look on TPST)
 
-                email = email.Replace("{deviceID}", deviceID)
-                         .Replace("{assetKey}", assetKey)
-                         .Replace("{shortDescription}", shortDescription)
-                         .Replace("{longDescription}", longDescription);
+                if (email.Contains("{deviceID}") && !string.IsNullOrEmpty(deviceID))
+                {
+                    email = email.Replace("{deviceID}", deviceID);
+                }
+                if (email.Contains("{assetKey}") && !string.IsNullOrEmpty(assetKey))
+                {
+                    email = email.Replace("{assetKey}", assetKey);
+                }
+                if (email.Contains("{shortDescription}") && !string.IsNullOrEmpty(shortDescription))
+                {
+                    email = email.Replace("{shortDescription}", shortDescription);
+                }
+                if (email.Contains("{longDescription}") && !string.IsNullOrEmpty(longDescription))
+                {
+                    email = email.Replace("{longDescription}", longDescription);
+                }
+
 
                 context.State["EmailRecipient"] = recipient;
                 context.State["EmailContent"] = email;

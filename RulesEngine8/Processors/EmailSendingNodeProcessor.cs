@@ -42,7 +42,7 @@ namespace RulesEngine8.Processors
                         emailSent = true,
                         emailRecipient = recipient,
                         emailContent = (string)context.State["EmailContent"],
-                        timestamp = DateTime.Now
+                        timestamp = DateTime.UtcNow
                     };
                     _context.HistoryTables.Add(historyRecord);
                     System.Diagnostics.Debug.WriteLine("ADD HISTORY RECORD FALSE");
@@ -61,7 +61,7 @@ namespace RulesEngine8.Processors
                         emailSent = true,
                         emailRecipient = recipient,
                         emailContent = content,
-                        timestamp = DateTime.Now
+                        timestamp = DateTime.UtcNow
                     };
                     _context.HistoryTables.Add(historyRecord);
                     System.Diagnostics.Debug.WriteLine("ADD HISTORY RECORD FALSE");

@@ -23,13 +23,13 @@ public class SensorController : ControllerBase
 
     [HttpPost("districts/{district}/installations/{assetType}/{assetKey}/sensors/{sensorKey}:{sensorType}")]
     public async Task<IActionResult> Post(
-        string district,
-        string assetType,
-        string assetKey,
-        string sensorKey,
-        string sensorType,
-        [FromQuery, Required] string hostname,
-        [FromBody] SensorModel sensor)
+    string district,
+    string assetType,
+    string assetKey,
+    string sensorKey,
+    string sensorType,
+    [FromQuery, Required] string hostname,
+    [FromBody] SensorModel sensor)
     {
         var inputData = new JsonObject
         {
@@ -49,9 +49,10 @@ public class SensorController : ControllerBase
             .Where(rc => rc.IsActive)
             .ToListAsync();
 
+        bool ruleExecuted = false; // Flag to check if at least one rule was executed
+
         foreach (var ruleChain in activeRuleChains)
         {
-
             var listeningNode = ruleChain.Nodes
                 .FirstOrDefault(n => n.NodeType == "Listening" &&
                                      STJ.JsonSerializer.Deserialize<ListeningNodeConfig>(n.ConfigurationJson).apiEndpoint == endpoint);
@@ -61,7 +62,6 @@ public class SensorController : ControllerBase
                 System.Diagnostics.Debug.WriteLine("This is a listening node");
                 var configItem = _context.ConfigItems.FirstOrDefault(x => x.AssetID == assetKey);
                 var context = new RuleExecutionContext { InputData = inputData, Result = new JsonObject() };
-
 
                 if (configItem != null)
                 {
@@ -78,10 +78,19 @@ public class SensorController : ControllerBase
                         context.State["invertSendEmail"] = alarm.Invert;
                     }
                 }
+
                 await _ruleEngine.ExecuteRuleChain(ruleChain.RuleChainId, context);
-                return Ok(new { message = "Rule chain executed successfully.", result = context.Result });
+                ruleExecuted = true;
             }
         }
-        return BadRequest(new { error = "No active rule chain listening on this endpoint." });
+
+        if (ruleExecuted)
+        {
+            return Ok(new { message = "Rule chain(s) executed successfully." });
+        }
+        else
+        {
+            return BadRequest(new { error = "No active rule chain listening on this endpoint." });
+        }
     }
 }

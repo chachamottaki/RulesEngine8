@@ -42,9 +42,9 @@ namespace RulesEngine8.Processors
                 }
 
 
-                if (email.Contains("{deviceID}") && !string.IsNullOrEmpty(deviceID))
+                if (email.Contains("{DeviceID}") && !string.IsNullOrEmpty(deviceID))
                 {
-                    email = email.Replace("{deviceID}", deviceID);
+                    email = email.Replace("{DeviceID}", deviceID);
                 }
                 if (email.Contains("{assetKey}") && !string.IsNullOrEmpty(assetKey))
                 {

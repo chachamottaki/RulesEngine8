@@ -24,9 +24,23 @@ namespace RulesEngine8.Processors
                 string assetKey = alarm.InstallationKey;
                 string shortDescription = alarm.shortDescription;
                 string longDescription = alarm.longDescription;
-                string recipient = configItem.Config.email.ToString();
                 string email = emailTemplate;
+
+
                 //add other inputs like sensortype, sensorkey, assetType, district,.. (look on TPST)
+
+                string defaultRecipient = configItem.Config.email.ToString();
+                string userRecipient = nodeConfig?["recipient"]?.ToString(); // Get user-provided recipient
+                string recipient;
+                if (!string.IsNullOrEmpty(userRecipient) && userRecipient != "{{recipientEmail}}")
+                {
+                    recipient = userRecipient; 
+                }
+                else
+                {
+                    recipient = defaultRecipient; 
+                }
+
 
                 if (email.Contains("{deviceID}") && !string.IsNullOrEmpty(deviceID))
                 {

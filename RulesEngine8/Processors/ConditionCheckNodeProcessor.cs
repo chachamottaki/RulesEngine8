@@ -23,7 +23,7 @@ namespace RulesEngine8.Processors
         public async Task ProcessAsync(RuleNode node, RuleExecutionContext context)
         {
             var nodeConfig = JsonNode.Parse(node.ConfigurationJson);
-            string condition = nodeConfig?["condition"]?.ToString();
+            string condition = nodeConfig?["script"]?.ToString();
 
             var configItem = (ConfigItem)context.State["ConfigItem"];
             var alarm = (DI)context.State["Alarm"];
@@ -71,7 +71,11 @@ namespace RulesEngine8.Processors
                 .AddImports("System", "System.Linq", "System.Collections.Generic");
 
             // Create a scripting state with the context's state variables
-            var globals = new ScriptGlobals { State = context.State };
+            var globals = new ScriptGlobals { 
+                State = context.State,
+                sendEmail = (bool)context.State["sendEmail"],
+                invertSendEmail = (bool)context.State["invertSendEmail"]
+        };
 
             // Evaluate the condition dynamically
             var result = await CSharpScript.EvaluateAsync<bool>(condition, scriptOptions, globals);
@@ -87,5 +91,7 @@ namespace RulesEngine8.Processors
     public class ScriptGlobals
     {
         public Dictionary<string, object> State { get; set; }
+        public bool sendEmail { get; set; }
+        public bool invertSendEmail { get; set; }
     }
 }

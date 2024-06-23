@@ -25,6 +25,7 @@ namespace RulesEngine8.Processors
                 string shortDescription = alarm.shortDescription;
                 string longDescription = alarm.longDescription;
                 string email = emailTemplate;
+                string alarmID = (string)context.State["AlarmId"];
 
 
                 //add other inputs like sensortype, sensorkey, assetType, district,.. (look on TPST)
@@ -57,6 +58,10 @@ namespace RulesEngine8.Processors
                 if (email.Contains("{longDescription}") && !string.IsNullOrEmpty(longDescription))
                 {
                     email = email.Replace("{longDescription}", longDescription);
+                }
+                if (email.Contains("{AlarmID}") && !string.IsNullOrEmpty(alarmID))
+                {
+                    email = email.Replace("{AlarmID}", alarmID);
                 }
 
 
